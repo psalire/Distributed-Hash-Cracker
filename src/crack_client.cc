@@ -1,7 +1,7 @@
 
 #include "crack_client.h"
 
-/*************************** HashCrackClient ***************************/
+/*************************** class HashCrackClient ***************************/
 
 /* Constructor */
 HashCrackClient::HashCrackClient(int t) {
@@ -14,8 +14,6 @@ bool HashCrackClient::connect_to_server(const char *ip_addr, int port) {
     try {
         /* Connect to server ip:port */
         socket.connect_socket(ip_addr, port);
-        /* Send tot_threads */
-        // socket.send_message((void *) &tot_threads, sizeof(tot_threads));
         /* Receive hash_to_crack, search_space, and prefixes */
         socket.recv_message((void *) &settings, sizeof(settings));
     }
@@ -41,8 +39,11 @@ bool HashCrackClient::recv_message(void *buf, int msg_len) {
 Settings HashCrackClient::get_settings() {
     return settings;
 }
+void HashCrackClient::close_socket() {
+    socket.close_socket();
+}
 
-/*************************** HashCrack ***************************/
+/*************************** class HashCrack ***************************/
 
 /* Constructors */
 template <typename T> HashCrack<T>::HashCrack(Settings settings, int n) {

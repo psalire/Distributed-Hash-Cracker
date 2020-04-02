@@ -14,10 +14,17 @@ class TCPComm {
         int sockfd;
         void verify_sockfd();
         void verify_sockfd(int);
+        bool being_copied;
     
     public:
-        /* Constructor */
+        /* Constructors */
         TCPComm();
+        // TCPComm(TCPComm &&);
+        /* Destructor */
+        // ~TCPComm();
+        
+        /* Assignment operator */
+        // TCPComm &operator=(TCPComm &&);
         
         /* Methods */
         int get_sockfd();

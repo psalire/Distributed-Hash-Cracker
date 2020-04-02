@@ -5,22 +5,15 @@ HashCrackServer::HashCrackServer(std::string checksum_hex_string, std::string ss
     if (t <= 0) {
         throw std::runtime_error("invalid client count");
     }
-    started = false;
-    hash_to_crack = checksum_hex_string;
-    hash_algo = a;
-    total_clients = t;
-    max_string_length = m;
-    use_fixed_string_length = b;
-    client_sockfds.resize(total_clients);
-    search_space = ss;
+    set_is_started(false);
+    set_hash_to_crack(checksum_hex_string);
+    set_hash_algo(a);
+    set_total_clients(t);
+    set_max_string_length(m);
+    set_use_fixed_string_length(b);
+    set_search_space(ss);
     socket = TCPComm();
     init_server(p);
-}
-HashCrackServer::~HashCrackServer() {
-    for (int sockfd : client_sockfds) {
-        close(sockfd);
-    }
-    socket.close_socket();
 }
 
 void HashCrackServer::init_server(int port) {
@@ -29,6 +22,7 @@ void HashCrackServer::init_server(int port) {
 }
 
 void HashCrackServer::accept_clients() {
+    set_is_started(false); // Assume starts a new session
     /* Accept all clients */
     for (int i = 0; i < total_clients; i++) {
         #ifdef SERVER_VERBOSE
@@ -38,15 +32,12 @@ void HashCrackServer::accept_clients() {
         #ifdef SERVER_VERBOSE
         printf("[INFO] Accepted client #%d\n", i);
         #endif
-        /* Receive message of total threads client will use */
-        // int client_threads = 0;
-        // socket.recv_message(client_sockfds[i], &client_threads, sizeof(client_threads));
     }
 }
 
 void HashCrackServer::start() {
+    set_is_started(true);
     /* Divide search space to assign prefixes */
-    /* Sum total thread count and use to divide search space */
     std::vector<std::string> divided_searchspace;
     int div = search_space.size() / total_clients;
     if ((unsigned int ) total_clients > search_space.size() || !div) {
@@ -108,14 +99,39 @@ void HashCrackServer::start() {
             close(client_sockfds[i]);
         }));
     }
-    started = true;
 }
 
 void HashCrackServer::wait_for_clients() {
-    if (!started) {
+    if (!is_started) {
         throw std::runtime_error("wait_for_clients() requires start()");
     }
     for (std::thread &t : client_connections) {
         t.join();
     }
+    client_connections.clear();
+}
+
+/* Setters and getters */
+void HashCrackServer::set_hash_to_crack(std::string s) {
+    hash_to_crack = s;
+}
+void HashCrackServer::set_search_space(std::string s) {
+    search_space = s;
+}
+void HashCrackServer::set_hash_algo(std::string s) {
+    hash_algo = s;
+}
+void HashCrackServer::set_total_clients(int n) {
+    total_clients = n;
+    client_sockfds.clear();
+    client_sockfds.resize(total_clients);
+}
+void HashCrackServer::set_max_string_length(int n) {
+    max_string_length = n;
+}
+void HashCrackServer::set_use_fixed_string_length(bool b) {
+    use_fixed_string_length = b;
+}
+void HashCrackServer::set_is_started(bool b)  {
+    is_started = b;
 }

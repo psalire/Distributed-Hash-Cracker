@@ -26,6 +26,7 @@ class HashCrackClient {
         bool connect_to_server(const char *, int);
         void send_results_to_server(bool b, std::string);
         bool recv_message(void *, int);
+        void close_socket();
         Settings get_settings();
 };
 

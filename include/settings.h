@@ -11,7 +11,7 @@ typedef struct Settings {
          prefixes[2048],
          hash_to_crack[512],
          hash_algo[20];
-    int max_string_len;
+    unsigned int max_string_len;
     bool use_fixed_string_len;
 } Settings;
 

@@ -24,7 +24,7 @@ class HashCrackServer {
         int total_clients,
             max_string_length;
         bool use_fixed_string_length,
-             started;
+             is_started;
         TCPComm socket;
         std::vector<int> client_sockfds;
         std::vector<std::thread> client_connections;
@@ -35,13 +35,19 @@ class HashCrackServer {
     public:
         /* Constructors */
         HashCrackServer(std::string, std::string, std::string, int, int, int, bool);
-        /* Destructor */
-        ~HashCrackServer();
         
         /* Methods */
         void accept_clients();
         void start();
         void wait_for_clients();
+        /* Setters and getters */
+        void set_hash_to_crack(std::string);
+        void set_search_space(std::string);
+        void set_hash_algo(std::string);
+        void set_total_clients(int);
+        void set_max_string_length(int);
+        void set_use_fixed_string_length(bool);
+        void set_is_started(bool);
 };
 
 #endif
