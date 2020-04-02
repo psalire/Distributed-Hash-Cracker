@@ -149,6 +149,11 @@ int main(void) {
             1, std::vector<int>{4}, args.search_space,
             std::vector<std::string>{"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@"},
             "016c756f0e615ef70ca05eb499a74d31c2ddec7244760d59d792583c0410b36d", "boop", "SHA256", 0, false
+        ),
+        std::make_tuple(
+            4, std::vector<int>{1,1,1,1}, args.search_space,
+            std::vector<std::string>{"abcdefghijklmnop", "qrstuvwxyzABCDEF", "GHIJKLMNOPQRSTUV", "WXYZ0123456789!@"},
+            "1afc325a1e5d96c494efd418a727a16a84541c777b190f2d14a935a2524bd4ea", "w0R!", "SHA256", 0, false
         )
     }) {
         int num_clients = std::get<0>(tuple);
@@ -209,6 +214,7 @@ int main(void) {
         for (unsigned int i = 0; i < settings.size(); i++) {
             bool prefix_match = false;
             for (unsigned int j = 0; j < expected_prefixes.size(); j++) {
+                // std::cout << settings[i].prefixes << "==" << expected_prefixes[j] << "\n";
                 if (strcmp(settings[i].prefixes, expected_prefixes[j].c_str()) == 0) {
                     prefix_match = true;
                     expected_prefixes.erase(expected_prefixes.begin()+j);
