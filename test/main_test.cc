@@ -62,6 +62,8 @@ static bool hash_all_strings_up_to_len(std::string search_space, int length, std
 }
 
 int main(void) {
+    std::chrono::steady_clock::time_point start, end;
+    /**************************** Test argparse ****************************/
     const char *argv[] = {
         "./main_test",
         "-i", "fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603", // Hash of "ab'
@@ -75,72 +77,236 @@ int main(void) {
     assert(args.search_space == "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@");
     assert(args.hash_algo == "SHA256");
     assert(args.hash_to_crack == "fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603");
+    
+    /**************************** Test string generator function ****************************/
+    std::cout << "hash_all_strings_up_to_len():";
+    std::cout << "  Search space: \"abcdefg\"\n";
+    std::cout << "  Max length: 7\n";
+    std::cout << "  Finding valid strings...\n";
+    std::string ss = "abcdefg";
+    for (std::string s : {"a", "g", "fe", "bbg", "", "ggaf", "ggggggg", "bacedd", ss.c_str()}) {
+        std::cout << "  -Finding \"" << s << "\"...\n";
+        assert(hash_all_strings_up_to_len(ss, ss.size(), "", s));
+    }
+    std::cout << "  Finding invalid strings...\n";
+    for (std::string s : {"x", "ggz", "aaaaaaaa", "!!!!!"}) {
+        std::cout << "  -Finding \"" << s << "\"...\n";
+        assert(!hash_all_strings_up_to_len(ss, ss.size(), "", s));
+    }
+    std::cout << " Prepend val \"g\"\n";
+    std::cout << " Finding valid strings...\n";
+    for (std::string s : {"g", "ggb", "gaaaaaa", "gbcefg"}) {
+        std::cout << "  -Finding \"" << s << "\"...\n";
+        assert(hash_all_strings_up_to_len(ss, ss.size(), "g", s));
+    }
+    std::cout << " Finding invalid strings...\n";
+    for (std::string s : {"", "xgb", "a!", "gaaaaa@", "abc", "gago", "gggggggg"}) {
+        std::cout << "  -Finding \"" << s << "\"...\n";
+        assert(!hash_all_strings_up_to_len(ss, ss.size(), "g", s));
+    }
+    std::cout << " Prepend val \"ab\"\n";
+    std::cout << " Finding valid strings...\n";
+    for (std::string s : {"ab", "abc", "abgge", "abbbbbe"}) {
+        std::cout << "  -Finding \"" << s << "\"...\n";
+        assert(hash_all_strings_up_to_len(ss, ss.size(), "ab", s));
+    }
+    std::cout << " Finding invalid strings...\n";
+    for (std::string s : {"", "abbbbbee", "abbbbe!", "abbx", "x", "ab!", "abababababab"}) {
+        std::cout << "  -Finding \"" << s << "\"...\n";
+        assert(!hash_all_strings_up_to_len(ss, ss.size(), "ab", s));
+    }
+    
+    /**************************** Test verify hash functions ****************************/
+    HashCrack<CryptoPP::SHA256> test_verify_hash(args.hash_to_crack, args.search_space, "", 0, 0, false);
+    std::cout << "check_hash_match():\n";
+    std::cout << "  -Verify hash against incorrect strings...\n";
+    for (std::string s : {"Hello world!", "Goodbye world!", "abc", "aa", "ba", "a", ""}) {
+        std::cout << "  -Verifying \"" << s << "\"\n";
+        assert(!test_verify_hash.check_hash_match(s));
+    }
+    std::cout << "  -Verify hash against correct string...\n";
+    assert(test_verify_hash.check_hash_match("ab"));
 
+    /**************************** Create server instance ****************************/
     HashCrackServer server_crack(
         args.hash_to_crack,
         args.search_space,
         args.hash_algo,
         2, 8080, 0, false
     );
-
-    std::thread thread_accept(&HashCrackServer::accept_clients, std::ref(server_crack));
-
-    HashCrackClient client_comm_1(4);
-    HashCrackClient client_comm_2(4);
-    std::thread thread_c1(&HashCrackClient::connect_to_server, std::ref(client_comm_1), "127.0.0.1", 8080);
-    std::thread thread_c2(&HashCrackClient::connect_to_server, std::ref(client_comm_2), "127.0.0.1", 8080);
-
-    std::cout << "Joining at line " << __LINE__ << "...\n";
-    thread_accept.join();
-    puts("start()...");
-    server_crack.start();
-    std::cout << "Joining at line " << __LINE__ << "...\n";
-    thread_c1.join();
-    std::cout << "Joining at line " << __LINE__ << "...\n";
-    thread_c2.join();
-
-    std::vector<Settings> settings;
-    settings.push_back(client_comm_1.get_settings());
-    settings.push_back(client_comm_2.get_settings());
-    int i = 0;
-    for (Settings s : settings) {
-        std::cout << "Verifiying settings " << i++ << "...\n";
-        assert(s.hash_algo == args.hash_algo);
-        assert(s.search_space == args.search_space);
-        assert(s.hash_to_crack == args.hash_to_crack);
-        assert(s.use_fixed_string_len == false);
-        assert(s.max_string_len == 0);
-    }
-    std::cout << "settings[0].prefixes = \"" << settings[0].prefixes << "\"\n";
-    assert((strcmp(settings[0].prefixes, "abcdefghijklmnopqrstuvwxyzABCDEF") == 0) ||
-            (strcmp(settings[1].prefixes, "GHIJKLMNOPQRSTUVWXYZ0123456789!@") == 0));
-    std::cout << "settings[1].prefixes = \"" << settings[1].prefixes << "\"\n";
-    if (strcmp(settings[0].prefixes, "abcdefghijklmnopqrstuvwxyzABCDEF") == 0) {
-        assert(strcmp(settings[1].prefixes, "GHIJKLMNOPQRSTUVWXYZ0123456789!@") == 0);
-    }
-    else {
-        assert(strcmp(settings[1].prefixes, "abcdefghijklmnopqrstuvwxyzABCDEF") == 0);
-    }
-
-    HashCrack<CryptoPP::SHA256> client_crack_1(settings[0], 2);
-    HashCrack<CryptoPP::SHA256> client_crack_2(settings[1], 2);
-
-    std::thread thread_crack1([&client_crack_1, &client_comm_1]() {
-        client_crack_1.multithreaded_crack(client_comm_1);
-        client_comm_1.send_results_to_server(client_crack_1.get_is_cracked(), client_crack_1.get_cracked_hash());
-    });
-    std::thread thread_crack2([&client_crack_2, &client_comm_2]() {
-        client_crack_2.multithreaded_crack(client_comm_2);
-        client_comm_2.send_results_to_server(client_crack_2.get_is_cracked(), client_crack_2.get_cracked_hash());
-    });
     
-    std::cout << "Joining at line " << __LINE__ << "...\n";
-    thread_crack1.join();
-    std::cout << "Joining at line " << __LINE__ << "...\n";
-    thread_crack2.join();
+    /**************************** Test server client connection ****************************/
+    /* Tuple: (#clients, #threads per client, expected divisions of prefixes, search space,
+                hash of string, input string, hash algo) */
+    for (auto tuple : std::vector<std::tuple<int, std::vector<int>, std::string, std::vector<std::string>,
+                                             std::string, std::string, std::string, int, bool>>{
+        std::make_tuple(
+            2, std::vector<int>{2,2}, args.search_space,
+            std::vector<std::string>{"abcdefghijklmnopqrstuvwxyzABCDEF", "GHIJKLMNOPQRSTUVWXYZ0123456789!@"},
+            "fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603", "ab", "SHA256", 0, false
+        ),
+        std::make_tuple(
+            1, std::vector<int>{4}, args.search_space,
+            std::vector<std::string>{"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@"},
+            "016c756f0e615ef70ca05eb499a74d31c2ddec7244760d59d792583c0410b36d", "boop", "SHA256", 0, false
+        )
+    }) {
+        int num_clients = std::get<0>(tuple);
+        /* Give meaning to tuple values */
+        std::vector<int> client_thread_counts = std::get<1>(tuple);
+        assert((unsigned int) num_clients == client_thread_counts.size());
+        std::string search_space = std::get<2>(tuple);
+        std::vector<std::string> expected_prefixes = std::get<3>(tuple);
+        assert((unsigned int) num_clients == expected_prefixes.size());
+        std::string hash_to_crack = std::get<4>(tuple);
+        std::string correct_crack = std::get<5>(tuple);
+        std::string hash_algo = std::get<6>(tuple);
+        unsigned int max_string_len = std::get<7>(tuple);
+        bool use_fixed_string_len = std::get<8>(tuple);
+        server_crack.set_total_clients(num_clients);
+        server_crack.set_hash_to_crack(hash_to_crack);
+        
+        /* Server accept clients */
+        std::thread thread_accept = std::thread(&HashCrackServer::accept_clients, std::ref(server_crack));
+        
+        /* Create clients to connect to server */
+        std::vector<HashCrackClient *> client_comms;
+        std::vector<std::thread> client_comms_threads;
+        for (int i = 0; i < num_clients; i++) {
+            client_comms.push_back(new HashCrackClient(client_thread_counts[i]));
+            client_comms_threads.push_back(std::thread(&HashCrackClient::connect_to_server, std::ref(*client_comms[i]), "127.0.0.1", 8080));
+        }
+        
+        std::cout << "Joining at line " << __LINE__ << "...\n";
+        thread_accept.join();
+        puts("start()...");
+        server_crack.start();
+        for (int i = 0; i < num_clients; i++) {
+            std::cout << "Joining at line " << __LINE__ << "...\n";
+            client_comms_threads[i].join();
+        }
+        std::cout << "done\n";
+
+        /**************************** Test recvd settings correct ****************************/
+        std::vector<Settings> settings;
+        for (int i = 0; i < num_clients; i++) {
+            settings.push_back(client_comms[i]->get_settings());
+        }
+        int settings_i = 0;
+        for (Settings s : settings) {
+            std::cout << "Verifiying settings [" << settings_i++ << "]...\n";
+            // std::cout << s.hash_algo << "==" << hash_algo << "\n";
+            assert(s.hash_algo == hash_algo);
+            // std::cout << s.search_space << "==" << search_space << "\n";
+            assert(s.search_space == search_space);
+            // std::cout << s.hash_to_crack << "==" << hash_to_crack << "\n";
+            assert(s.hash_to_crack == hash_to_crack);
+            // std::cout << s.use_fixed_string_len << "==" << use_fixed_string_len << "\n";
+            assert(s.use_fixed_string_len == use_fixed_string_len);
+            // std::cout << s.max_string_len << "==" << max_string_len << "\n";
+            assert(s.max_string_len == max_string_len);
+        }
+        for (unsigned int i = 0; i < settings.size(); i++) {
+            bool prefix_match = false;
+            for (unsigned int j = 0; j < expected_prefixes.size(); j++) {
+                if (strcmp(settings[i].prefixes, expected_prefixes[j].c_str()) == 0) {
+                    prefix_match = true;
+                    expected_prefixes.erase(expected_prefixes.begin()+j);
+                    break;
+                }
+            }
+            assert(prefix_match);
+        }
+        assert(expected_prefixes.size() == 0);
+
+        /**************************** Create HashCracks from settings ****************************/
+        std::vector<HashCrack<CryptoPP::SHA256> *> client_cracks;
+        for (int i = 0; i < num_clients; i++) {
+            client_cracks.push_back(new HashCrack<CryptoPP::SHA256>(settings[i], client_thread_counts[i]));
+        }
+
+        /**************************** Test distributed crack w/ 2 clients ****************************/
+        printf("Cracking hashed string of \"%s\" with %d clients...\n", correct_crack.c_str(), num_clients);
+        std::vector<std::thread> crack_threads;
+        start = std::chrono::steady_clock::now();
+        for (int i = 0; i < num_clients; i++) {
+            crack_threads.push_back(std::thread([&, i]() {
+                client_cracks[i]->multithreaded_crack(*client_comms[i]);
+                client_comms[i]->send_results_to_server(client_cracks[i]->get_is_cracked(), client_cracks[i]->get_cracked_hash());
+            }));
+        }
+        for (std::thread &t : crack_threads) {
+            std::cout << "Joining at line " << __LINE__ << "...\n";
+            t.join();
+        }
+
+        puts("wait_for_clients()...");
+        server_crack.wait_for_clients();
+        end = std::chrono::steady_clock::now();
+        std::cout << "Time elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.0 << "s\n";
+
+        /**************************** Test results correct ****************************/
+        bool is_cracked = false;
+        for (int i = 0; i < num_clients; i++) {
+            if (client_cracks[i]->get_is_cracked()) {
+                is_cracked = true;
+                assert(client_cracks[i]->get_cracked_hash() == correct_crack);
+                if (++i == num_clients) {
+                    break;
+                }
+                for (; i < num_clients; i++) {
+                    assert(client_cracks[i]->get_is_cracked() == false);
+                }
+            }
+        }
+        assert(is_cracked == true);
+        
+        /**************************** Free memory, close sockets ****************************/
+        for (int i = 0; i < num_clients; i++) {
+            delete client_cracks[i];
+            client_comms[i]->close_socket();
+            delete client_comms[i];
+        }
+    }
     
-    puts("wait_for_clients()...");
-    server_crack.wait_for_clients();
+    /**************************** Test distributed crack w/ 1 client ****************************/
+    // server_crack.set_total_clients(1);
+    // server_crack.set_is_started(false);
+    // std::thread thread_accept_2(&HashCrackServer::accept_clients, std::ref(server_crack));
+
+    // HashCrackClient client_comm_3(4);
+    // std::thread thread_c3(&HashCrackClient::connect_to_server, std::ref(client_comm_3), "127.0.0.1", 8080);
+    
+    // std::cout << "Joining at line " << __LINE__ << "...\n";
+    // thread_accept_2.join();
+    // puts("start()...");
+    // server_crack.start();
+    // std::cout << "Joining at line " << __LINE__ << "...\n";
+    // thread_c3.join();
+
+    // HashCrack<CryptoPP::SHA256> client_crack_3(client_comm_3.get_settings(), 4);
+    
+    // std::cout << "Cracking hashed string of \"ab\" with 1 client, 4 threads...\n";
+    // start = std::chrono::steady_clock::now();
+    // std::thread thread_crack3([&client_crack_3, &client_comm_3]() {
+        // client_crack_3.multithreaded_crack(client_comm_3);
+        // client_comm_3.send_results_to_server(client_crack_3.get_is_cracked(), client_crack_3.get_cracked_hash());
+    // });
+
+    // std::cout << "Joining at line " << __LINE__ << "...\n";
+    // thread_crack3.join();
+
+    // puts("wait_for_clients()...");
+    // server_crack.wait_for_clients();
+    // end = std::chrono::steady_clock::now();
+    // std::cout << "Time elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.0 << "s\n";
+
+    // /**************************** Test results correct ****************************/
+    // assert(client_crack_3.get_is_cracked());
+    // assert(client_crack_3.get_cracked_hash() == "ab");
+    
+    // client_comm_3.close_socket();
+
     /* Create HashCrack w/ 4 threads */
     /* HashCrack<CryptoPP::SHA256> client_crack(
         args.hash_to_crack,
@@ -149,7 +315,7 @@ int main(void) {
         4, 0, false
     ); */
 
-
+    std::cout << "All tests passed!\n";
     return 0;
 
     // std::cout << "check_hash_match():\n";
