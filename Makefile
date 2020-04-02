@@ -23,6 +23,10 @@ main_test: test/main_test.cc $(HEADERS) $(OBJECTS)
 bin/args.o: src/args.cc
 	$(CC) -c $< $(FLAGS)
 	@mv *.o $(BIN)
+    
+bin/tcp.o: src/tcp.cc
+	$(CC) -c $< $(FLAGS)
+	@mv *.o $(BIN)
 
 bin/%.o: src/%.cc
 	$(CC) -c $< $(LINKS) $(FLAGS)
