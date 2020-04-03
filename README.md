@@ -5,7 +5,7 @@
 
 (WIP)
 
-Divides and distributes a search space among clients to brute force crack hashes.
+Divides and distributes a search space among clients to brute force crack hashes, multi-threaded on the CPU.
 
 ## Dependencies
 
