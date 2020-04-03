@@ -154,6 +154,16 @@ int main(void) {
             4, std::vector<int>{1,1,1,1}, args.search_space,
             std::vector<std::string>{"abcdefghijklmnop", "qrstuvwxyzABCDEF", "GHIJKLMNOPQRSTUV", "WXYZ0123456789!@"},
             "1afc325a1e5d96c494efd418a727a16a84541c777b190f2d14a935a2524bd4ea", "w0R!", "SHA256", 0, false
+        ),
+        std::make_tuple(
+            2, std::vector<int>{1,3}, args.search_space,
+            std::vector<std::string>{"abcdefghijklmnopqrstuvwxyzABCDEF", "GHIJKLMNOPQRSTUVWXYZ0123456789!@"},
+            "8f7beab00c9b839a44173edb77bdf6f9062b1e7023b06c22013ae2b983945292", "XaaaB", "SHA256", 0, false
+        ),
+        std::make_tuple(
+            4, std::vector<int>{1,1,1,1}, args.search_space,
+            std::vector<std::string>{"abcdefghijklmnop", "qrstuvwxyzABCDEF", "GHIJKLMNOPQRSTUV", "WXYZ0123456789!@"},
+            "38448a5ac7723caefeba44b9e96bf856d16e8a8b04a588b32b1e6e608e170e91", "worxX", "SHA256", 0, false
         )
     }) {
         int num_clients = std::get<0>(tuple);
@@ -168,9 +178,20 @@ int main(void) {
         std::string hash_algo = std::get<6>(tuple);
         unsigned int max_string_len = std::get<7>(tuple);
         bool use_fixed_string_len = std::get<8>(tuple);
+        
         server_crack.set_total_clients(num_clients);
         server_crack.set_hash_to_crack(hash_to_crack);
+        server_crack.set_search_space(search_space);
+        server_crack.set_max_string_length(max_string_len);
+        server_crack.set_use_fixed_string_length(use_fixed_string_len);
         
+        std::cout << "\nTesting:\n";
+        std::cout << "-Total Clients: " << num_clients << "\n";
+        std::cout << "-Hash to Crack: " << hash_to_crack << "\n";
+        std::cout << "-Search Space: " << search_space << "\n";
+        std::cout << "-Max String Len: " << max_string_len << "\n";
+        std::cout << "-Use Fixed String Len: " << use_fixed_string_len << "\n";
+            
         /* Server accept clients */
         std::thread thread_accept = std::thread(&HashCrackServer::accept_clients, std::ref(server_crack));
         
@@ -189,6 +210,7 @@ int main(void) {
         for (int i = 0; i < num_clients; i++) {
             std::cout << "Joining at line " << __LINE__ << "...\n";
             client_comms_threads[i].join();
+            assert(client_comms[i]->get_is_connected());
         }
         std::cout << "done\n";
 
@@ -321,7 +343,7 @@ int main(void) {
         4, 0, false
     ); */
 
-    std::cout << "All tests passed!\n";
+    std::cout << "\nAll tests passed!\n";
     return 0;
 
     // std::cout << "check_hash_match():\n";
