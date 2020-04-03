@@ -60,7 +60,7 @@ main_server : Server executable
     * Stop computing if cracked the hash, or received signal from server to stop
 5. After completion, send results to server
 
-### Example flow
+#### Example flow
 
 With search space of `abcdef` and `2` clients, trying to crack a hash whose input was `abc`:
 
