@@ -34,7 +34,7 @@ void HashCrackClient::send_results_to_server(bool b, std::string cracked_hash) {
     socket.send_message(socket.get_sockfd(), (void *) &results, sizeof(results));
     if (results.success) {
         // std::cout << "[INFO] Client send message...\n";
-        socket.send_message(socket.get_sockfd(), (void *) cracked_hash.c_str(), cracked_hash.size());
+        socket.send_message(socket.get_sockfd(), (void *) cracked_hash.c_str(), cracked_hash.size()+1);
     }
 }
 bool HashCrackClient::recv_message(void *buf, int msg_len) {
