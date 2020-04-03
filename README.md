@@ -44,7 +44,7 @@ main_server : Server executable
 1. Open TCP socket
 2. Block for and accept connections from n clients
 3. Divide search space to distribute to all clients
-4. Send search space and other info to clients
+4. Send search space and other parameters to clients
 5. Wait for clients to complete
 6. Receive results from clients
     * If client successfully cracked the hash, send message to all other clients to stop computing
