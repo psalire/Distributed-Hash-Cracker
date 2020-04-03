@@ -109,9 +109,20 @@ Usage: main_client -i [Server IP Address] -p [Server Port] -n [Total Threads]
 
 ```
 
-### Example Output
+## Notes, assumptions, limitations
 
-#### Server with 2 clients
+* Macros for verbosity are defined in ```settings.h```
+* Assumes server-client connection is maintained; Does not handle disconnects and reconnects
+
+## Todo
+
+* 
+
+## Example Output
+
+Cracking a hash with 2 clients:
+
+### Server with 2 clients
 ```
 $ ./main_server -n 2 -p 8080 -a SHA512 -i 3615f80c9d293ed7402687f94b22d58e529b8cc7916f8fac7fddf7fbd5af4cf777d3d795a7a00a16bf7e7f3fb9561ee9baae480da9fe7a18769e71886b03f315
 -l 5 -f -x "\`#\$%\^\*()-=\~_+[]\\|;\'\",./<>\&{}:?" -o crack_output.txt
@@ -142,7 +153,7 @@ $ cat crack_output.txt
 Hello
 ```
 
-#### Client #1
+### Client #1
 ```
 $ ./main_client -i 127.0.0.1 -p 8080 -n 2
 
@@ -161,7 +172,7 @@ Total Threads     : 2
 [INFO] Client send results message...
 ```
 
-#### Client #2
+### Client #2
 ```
 $ ./main_client -i 127.0.0.1 -p 8080 -n 2
 
