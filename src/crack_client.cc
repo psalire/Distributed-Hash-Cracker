@@ -185,6 +185,8 @@ template <typename HashAlgo> void HashCrack<HashAlgo>::multithreaded_crack(HashC
     if (check_hash_match("")) {
         set_is_cracked(true);
         cracked_hash = "";
+        delete[] hash_to_crack_byte_arr;
+        hash_to_crack_byte_arr = NULL;
         return;
     }
     
@@ -241,7 +243,7 @@ template <typename HashAlgo> void HashCrack<HashAlgo>::multithreaded_crack(HashC
     /* If use_fixed_str_len is false */
     if (!use_fixed_str_len) {
         auto f_check_str_len = max_string_len ? [](int l, int s) {
-            return l < s;
+            return l <= s;
         } : []([[maybe_unused]] int l, [[maybe_unused]] int s) {
             return true;
         };
@@ -364,6 +366,7 @@ template <typename HashAlgo> bool HashCrack<HashAlgo>::get_is_done() {
 
 /* Declare possible types for template class */
 template class HashCrack<CryptoPP::SHA1>;
+template class HashCrack<CryptoPP::SHA224>;
 template class HashCrack<CryptoPP::SHA256>;
 template class HashCrack<CryptoPP::SHA384>;
 template class HashCrack<CryptoPP::SHA512>;
