@@ -10,8 +10,9 @@ Args get_args(int argc, char **argv) {
     args.total_clients = -1;
     args.max_string_len = 0;
     args.use_fixed_str_len = false;
+    args.port = -1;
     int opt;
-    while ((opt = getopt(argc, argv, "i:s:l:n:a:x:c:fh")) != -1) {
+    while ((opt = getopt(argc, argv, "i:s:l:n:a:x:c:p:fh")) != -1) {
         switch(opt) {
             case 'i': {
                 args.hash_to_crack = optarg;
@@ -27,6 +28,10 @@ Args get_args(int argc, char **argv) {
             }
             case 'n': {
                 args.total_clients = atoi(optarg);
+                break;
+            }
+            case 'p': {
+                args.port = atoi(optarg);
                 break;
             }
             case 'x': {
@@ -73,6 +78,7 @@ void print_usage() {
               << "-i:\n    Required: Hash/checksum to crack.\n"
               << "-a:\n    Required: Hash algorithm to use.\n"
               << "-n:\n    Required: Total clients to accept.\n"
+              << "-p:\n    Required: Port number to create server on.\n"
               << "-s:\n    Optional: Set search space.\n    Default:\n"
                  "    \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRST"
                  "UVWXYZ0123456789`!@#$%^&*()-=~_+[]\\{}|;':\",./<>?\"\n"

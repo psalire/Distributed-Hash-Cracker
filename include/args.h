@@ -12,7 +12,8 @@ typedef struct Args {
                 hash_algo;
     unsigned int max_string_len;
     bool use_fixed_str_len;
-    int total_clients;
+    int total_clients,
+        port;
 } Args;
 
 Args get_args(int argc, char **argv);
