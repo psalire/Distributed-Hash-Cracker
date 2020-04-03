@@ -3,7 +3,7 @@
 
 ## About
 
-Distributes search space among clients to brute force crack hashes.
+Dividdes and distributes a search space among clients to brute force crack hashes.
 
 ## Dependencies
 
@@ -69,7 +69,7 @@ main_server : Server executable
 
 #### Server help:
 ```
-> ./main_server -h
+$ ./main_server -h
 Usage: main_server -i [Checksum String] -a [Hash Algorithm] -n [Total Clients] -p [Port Number] -o [Output File]
 -i:
     Required: Hash/checksum to crack.
@@ -98,7 +98,7 @@ Usage: main_server -i [Checksum String] -a [Hash Algorithm] -n [Total Clients] -
 
 #### Client help:
 ```
-> ./main_client -h
+$ ./main_client -h
 Usage: main_client -i [Server IP Address] -p [Server Port] -n [Total Threads] 
 -i:
     Required: IP address of server.
@@ -107,4 +107,74 @@ Usage: main_client -i [Server IP Address] -p [Server Port] -n [Total Threads]
 -n:
     Required: Total threads to use.
 
+```
+
+### Example Output
+
+#### Server with 2 clients
+```
+$ ./main_server -n 2 -p 8080 -a SHA512 -i 3615f80c9d293ed7402687f94b22d58e529b8cc7916f8fac7fddf7fbd5af4cf777d3d795a7a00a16bf7e7f3fb9561ee9baae480da9fe7a18769e71886b03f315
+-l 5 -f -x "\`#\$%\^\*()-=\~_+[]\\|;\'\",./<>\&{}:?" -o crack_output.txt
+
+Hash to crack       : 3615f80c9d293ed7402687f94b22d58e529b8cc7916f8fac7fddf7fbd5af4cf777d3d795a7a00a16bf7e7f3fb9561ee9baae480da9fe7a18769e71886b03f315
+Hash Algorithm      : SHA512
+Search space        : "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@"
+Max string length   : 5
+Fixed string length : True
+Total clients       : 2
+Port number         : 8080
+Output File         : crack_output.txt
+
+[SERVER] Accepting 2 clients...
+[INFO] Accepting client #0...
+[INFO] Accepted client #0
+[INFO] Accepting client #1...
+[INFO] Accepted client #1
+[SERVER] Initializing all clients and client comms...
+[SERVER] Clients are computing, waiting for results...
+[SERVER] Client #1 cracked the hash.
+[INFO] Client #1 CRACKED HASH: Hello
+[SERVER] Client #0 finished without cracking the hash.
+[SERVER] Time elapsed: 32.468s
+[SERVER] Client successfully cracked 3615f80c9d293ed7402687f94b22d58e529b8cc7916f8fac7fddf7fbd5af4cf777d3d795a7a00a16bf7e7f3fb9561ee9baae480da9fe7a18769e71886b03f315
+[SERVER] Saved crack to crack_output.txt.
+$ cat crack_output.txt
+Hello
+```
+
+#### Client #1
+```
+$ ./main_client -i 127.0.0.1 -p 8080 -n 2
+
+Server IP Address : 127.0.0.1
+Server port       : 8080
+Total Threads     : 2
+
+[CLIENT] Connecting to server at 127.0.0.1:8080...
+[INFO] Receiving settings from server...
+[INFO] Hash Algo: SHA512
+[CLIENT] Cracking hash...
+[INFO] Cracking lengths: 5
+[INFO] Cracking lengths: 5
+[CLIENT] Time elapsed: 32.464s
+[CLIENT] Successfully cracked the hash: Hello
+[INFO] Client send results message...
+```
+
+#### Client #2
+```
+$ ./main_client -i 127.0.0.1 -p 8080 -n 2
+
+Server IP Address : 127.0.0.1
+Server port       : 8080
+Total Threads     : 2
+
+[CLIENT] Connecting to server at 127.0.0.1:8080...
+[INFO] Receiving settings from server...
+[INFO] Hash Algo: SHA512
+[CLIENT] Cracking hash...
+[INFO] Cracking lengths: 5
+[INFO] Cracking lengths: 5
+[CLIENT] Time elapsed: 32.467s
+[CLIENT] Finished assignment without cracking the hash.
 ```
