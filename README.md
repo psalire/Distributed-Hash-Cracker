@@ -55,7 +55,7 @@ main_server : Server executable
 1. Open TCP socket
 2. Connect to server
 3. Receive parameters for cracking from server, including designated search space, hash algo, etc.
-4. Brute force crack the hash based on parameters from server
+4. Brute force crack the hash based on received parameters
     * Stop computing if cracked the hash, or received signal from server to stop
 5. After completion, send results to server
 
