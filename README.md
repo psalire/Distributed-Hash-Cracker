@@ -67,8 +67,8 @@ With search space of `abcdef` and `2` clients, trying to crack a hash whose inpu
 1. Server divides this search space into 2: `abc` and `def`
 2. Server sends `abc` to Client #1 and `def` to Client #2
 3. Client #1 attempts all strings that start with `a`, `b`, and `c`. Client #2 attempts all strings that start with `d`, `e`, and `f`.
-    * E.g. Client #1 tries `a`, `aa`, `ab`, ..., then tries `b`, `ba`, ..., then `c`, `ca`, ...
-    * Client #2 tries `d`, `da`, `db`, ..., then tries `e`, `ea`, ..., then `f`, `fa`, ...
+    * E.g. Client #1 tries `a`, `aa`, `ab`, `...`, then tries `b`, `ba`, `...`, then `c`, `ca`, `...`
+    * Client #2 tries `d`, `da`, `db`, `...`, then tries `e`, `ea`, `...`, then `f`, `fa`, `...`
 4. Client #1 will crack the hash for `abc`, and send its results to the server
 5. Server receives message that Client #1 successfully cracked, and the crack itself
 6. Server sends message to Client #2 that all is done- stop computing
