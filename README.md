@@ -114,10 +114,6 @@ Usage: main_client -i [Server IP Address] -p [Server Port] -n [Total Threads]
 * Macros for verbosity are defined in ```settings.h```
 * Assumes server-client connection is maintained; Does not handle disconnects and reconnects
 
-## Todo
-
-* 
-
 ## Example Output
 
 Cracking a hash with 2 clients:
@@ -189,3 +185,7 @@ Total Threads     : 2
 [CLIENT] Time elapsed: 32.467s
 [CLIENT] Finished assignment without cracking the hash.
 ```
+
+## Todo
+
+* 
