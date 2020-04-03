@@ -3,7 +3,8 @@
 
 ## About
 
-Dividdes and distributes a search space among clients to brute force crack hashes.
+(WIP)
+Divides and distributes a search space among clients to brute force crack hashes.
 
 ## Dependencies
 
