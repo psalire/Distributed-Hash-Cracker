@@ -26,12 +26,14 @@ bool HashCrackClient::connect_to_server(const char *ip_addr, int port) {
     return true;
 }
 void HashCrackClient::send_results_to_server(bool b, std::string cracked_hash) {
+    assert(get_is_connected());
     Results results;
     memset(&results, 0, sizeof(results));
     results.success = b;
     results.string_len = cracked_hash.size();
     socket.send_message(socket.get_sockfd(), (void *) &results, sizeof(results));
     if (results.success) {
+        // std::cout << "[INFO] Client send message...\n";
         socket.send_message(socket.get_sockfd(), (void *) cracked_hash.c_str(), cracked_hash.size());
     }
 }
@@ -45,8 +47,8 @@ bool HashCrackClient::get_is_connected() {
     return is_connected;
 }
 void HashCrackClient::close_socket() {
-    is_connected = false;
     socket.close_socket();
+    is_connected = false;
 }
 
 /*************************** class HashCrack ***************************/

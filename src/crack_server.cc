@@ -87,7 +87,7 @@ void HashCrackServer::start() {
                 const char *done = "DONE";
                 for (int j = 0; j < total_clients; j++) {
                     if (j != i) {
-                        std::cout << "[INFO] Server send message " << j << "...\n";
+                        // std::cout << "[INFO] Server send message " << j << "...\n";
                         socket.send_message(client_sockfds[j], (void *) done, 4);
                     }
                 }
