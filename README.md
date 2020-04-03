@@ -67,7 +67,7 @@ main_server : Server executable
 2. Compile and run tests with ```make test```
 3. Compile client and server with ```make```
 
-Server help:
+### Server help:
 ```
 > ./main_server -h
 Usage: main_server -i [Checksum String] -a [Hash Algorithm] -n [Total Clients] -p [Port Number] -o [Output File]
@@ -96,7 +96,7 @@ Usage: main_server -i [Checksum String] -a [Hash Algorithm] -n [Total Clients] -
     Optional: Fixed string length; Only crack strings of length max string length.
 ```
 
-Client help:
+### Client help:
 ```
 > ./main_client -h
 Usage: main_client -i [Server IP Address] -p [Server Port] -n [Total Threads] 
