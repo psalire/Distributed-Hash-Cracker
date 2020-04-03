@@ -39,7 +39,7 @@ main_server : Server executable
 
 ## How it works
 
-## Server
+### Server
 
 1. Open TCP socket
 2. Block for and accept connections from n clients
@@ -50,7 +50,7 @@ main_server : Server executable
     * If client successfully cracked the hash, send message to all other clients to stop computing
 7. If received a crack, save crack to output file
 
-## Client
+### Client
 
 1. Open TCP socket
 2. Connect to server
