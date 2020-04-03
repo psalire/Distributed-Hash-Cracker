@@ -169,20 +169,9 @@ template <typename HashAlgo> bool HashCrack<HashAlgo>::crack(std::string prefix,
         return true;
     }
 
-    /* Crack with max length */
-    // if (max_str_len) {
-        if (hash_all_strings(search_space, max_str_len-prefix.size(), prefix)) {
-            return true;
-        }
-    // }
-    /* No max length, loop forever until match */
-    // else {
-        // for (int i = 0;; i++) {
-            // if (hash_all_strings(search_space, i, prefix)) {
-                // return true;
-            // }
-        // }
-    // }
+    if (hash_all_strings(search_space, max_str_len-prefix.size(), prefix)) {
+        return true;
+    }
     return false;
 }
 
