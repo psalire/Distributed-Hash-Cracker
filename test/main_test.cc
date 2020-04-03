@@ -466,6 +466,6 @@ int main(void) {
         }
     }
 
-    std::cout << "\nAll tests passed!\n";
+    std::cout << "\n[TEST] All tests passed!\n";
     return 0;
 }
