@@ -3,6 +3,7 @@
 #define _CRACK_CLIENT_H_
 
 #include <cryptopp/sha.h>
+#include <cryptopp/sha3.h>
 #include <thread>
 #include <mutex>
 #include <atomic>
@@ -17,6 +18,7 @@ class HashCrackClient {
         TCPComm socket;
         Settings settings;
         int tot_threads;
+        bool is_connected;
         
     public:
         /* Constructor */
@@ -28,6 +30,7 @@ class HashCrackClient {
         bool recv_message(void *, int);
         void close_socket();
         Settings get_settings();
+        bool get_is_connected();
 };
 
 /* Hash_Algo is expected to be a CryptoPP hash class */
@@ -38,10 +41,10 @@ class HashCrackClient {
 template <typename HashAlgo> class HashCrack : public Encoder {
     private:
         /* Properties */
-        std::string hash_to_crack,
-                    cracked_hash,
+        std::string cracked_hash,
                     search_space,
                     prefixes;
+        byte *hash_to_crack_byte_arr;
         int tot_threads,
             max_string_len;
         std::atomic<bool> is_cracked,
