@@ -11,9 +11,11 @@
 #include "args.h"
 
 /*
-    main_test.cc tests hashing and string generating functions,
-    then tests the distributed hash cracking with server and clients located on localhost,
-    cracking hashes for short strings, longest being 5 characters
+    main_test.cc
+    Tests hashing and string generating functions.
+    Then test the distributed hash cracking
+    with server and clients located on localhost.
+    Test cracking hashes for short strings, longest @ 5 chars
 */
 
 /* Copy of hash_all_strings() in crack_client.cc, but changed check_hash_match() with string compare */
