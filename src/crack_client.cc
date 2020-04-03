@@ -7,6 +7,7 @@
 HashCrackClient::HashCrackClient(int t) {
     socket = TCPComm();
     tot_threads = t;
+    is_connected = false;
 }
 
 /* Methods */
@@ -21,6 +22,7 @@ bool HashCrackClient::connect_to_server(const char *ip_addr, int port) {
         std::cout << e.what() << std::endl;
         return false;
     }
+    is_connected = true;
     return true;
 }
 void HashCrackClient::send_results_to_server(bool b, std::string cracked_hash) {
@@ -39,7 +41,11 @@ bool HashCrackClient::recv_message(void *buf, int msg_len) {
 Settings HashCrackClient::get_settings() {
     return settings;
 }
+bool HashCrackClient::get_is_connected() {
+    return is_connected;
+}
 void HashCrackClient::close_socket() {
+    is_connected = false;
     socket.close_socket();
 }
 
@@ -80,7 +86,7 @@ template <typename T> HashCrack<T>::HashCrack(std::string checksum_hex_string, s
 template <typename HashAlgo> bool HashCrack<HashAlgo>::check_hash_match(std::string input) {
     HashAlgo hash;
     hash.Update((const byte*) input.data(), input.size());
-    return hash.Verify((const byte *) hash_to_crack.data());
+    return hash.Verify(hash_to_crack_byte_arr);
 }
 
 template <typename HashAlgo>
@@ -311,12 +317,16 @@ template <typename HashAlgo> void HashCrack<HashAlgo>::multithreaded_crack(HashC
     for (std::thread &t : threads) {
         t.join();
     }
+    delete[] hash_to_crack_byte_arr;
+    hash_to_crack_byte_arr = NULL;
 }
 
 /* Setters and getters */
 template <typename HashAlgo> void HashCrack<HashAlgo>::set_hash_to_crack(std::string checksum_hex_string) {
-    /* Save checksum hex string as byte string */
-    hash_to_crack = decode_hex_to_bytes(checksum_hex_string);
+    /* Save checksum hex string as byte array */
+    std::string hash_to_crack = decode_hex_to_bytes(checksum_hex_string);
+    hash_to_crack_byte_arr = new byte[hash_to_crack.size()];
+    memcpy(hash_to_crack_byte_arr, hash_to_crack.data(), hash_to_crack.size());
 }
 template <typename HashAlgo> void HashCrack<HashAlgo>::set_search_space(std::string ss) {
     search_space = ss;
@@ -350,4 +360,11 @@ template <typename HashAlgo> bool HashCrack<HashAlgo>::get_is_done() {
 }
 
 /* Declare possible types for template class */
+template class HashCrack<CryptoPP::SHA1>;
 template class HashCrack<CryptoPP::SHA256>;
+template class HashCrack<CryptoPP::SHA384>;
+template class HashCrack<CryptoPP::SHA512>;
+template class HashCrack<CryptoPP::SHA3_224>;
+template class HashCrack<CryptoPP::SHA3_256>;
+template class HashCrack<CryptoPP::SHA3_384>;
+template class HashCrack<CryptoPP::SHA3_512>;
