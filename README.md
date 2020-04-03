@@ -98,6 +98,7 @@ With search space of `abcdef` and `2` clients, trying to crack a hash whose inpu
 3. Compile client and server with ```make```
 
 #### Server help:
+See crack_client.cc line 369 for supported hash algorithms.
 ```
 $ ./main_server -h
 Usage: main_server -i [Checksum String] -a [Hash Algorithm] -n [Total Clients] -p [Port Number] -o [Output File]
@@ -219,4 +220,4 @@ Total Threads     : 2
 
 ## Todo
 
-* 
+* Test more hash algorithms (currently only SHA is implemented)
