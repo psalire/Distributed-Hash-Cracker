@@ -113,6 +113,7 @@ Usage: main_client -i [Server IP Address] -p [Server Port] -n [Total Threads]
 ## Notes, assumptions, limitations
 
 * Macros for verbosity are defined in ```settings.h```
+    * Verbose logs are printed with ```[INFO]``` prefix
 * Assumes server-client connection is maintained; Does not handle disconnects and reconnects
 
 ## Example Output
