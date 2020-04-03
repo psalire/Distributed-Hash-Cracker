@@ -50,10 +50,10 @@ template <typename HashAlgo> class HashCrack : public Encoder {
         std::atomic<bool> is_cracked,
                           is_done;
         bool use_fixed_str_len;
-        #if defined DEBUG || defined VERBOSE
+        #if defined CLIENT_DEBUG || defined CLIENT_VERBOSE
         std::mutex lock_stdout;
         #endif
-        #ifdef VERBOSE
+        #ifdef CLIENT_VERBOSE
         int curr_length;
         #endif
         

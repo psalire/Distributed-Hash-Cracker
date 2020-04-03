@@ -17,15 +17,12 @@ bool HashCrackClient::connect_to_server(const char *ip_addr, int port) {
         socket.connect_socket(ip_addr, port);
         /* Receive hash_to_crack, search_space, and prefixes */
         #ifdef CLIENT_VERBOSE
-        {
-            std::lock_guard<std::mutex> lg(lock_stdout);
-            std::cout << "[INFO] Receiving settings from server...\n";
-        }
+        std::cout << "[INFO] Receiving settings from server...\n";
         #endif
         socket.recv_message((void *) &settings, sizeof(settings));
     }
     catch (const std::exception &e) {
-        std::cout << e.what() << std::endl;
+        perror(e.what());
         return false;
     }
     is_connected = true;
@@ -39,8 +36,14 @@ void HashCrackClient::send_results_to_server(bool b, std::string cracked_hash) {
     results.string_len = cracked_hash.size();
     socket.send_message(socket.get_sockfd(), (void *) &results, sizeof(results));
     if (results.success) {
-        // std::cout << "[INFO] Client send message...\n";
+        std::cout << "[CLIENT] Successfully cracked the hash: " << cracked_hash << "\n";
+        #ifdef CLIENT_VERBOSE
+        std::cout << "[INFO] Client send results message...\n";
+        #endif
         socket.send_message(socket.get_sockfd(), (void *) cracked_hash.c_str(), cracked_hash.size()+1);
+    }
+    else {
+        std::cout << "[CLIENT] Finished assignment without cracking the hash.\n";
     }
 }
 bool HashCrackClient::recv_message(void *buf, int msg_len) {
@@ -208,7 +211,7 @@ template <typename HashAlgo> void HashCrack<HashAlgo>::multithreaded_crack(HashC
                 return;
             }
             else {
-                #ifdef CLIENT_VERBOSE || CLIENT_DEBUG
+                #if defined CLIENT_VERBOSE || defined CLIENT_DEBUG
                 std::lock_guard<std::mutex> lg(lock_stdout);
                 #endif
                 std::cout << "[CLIENT] Recvd unexpected msg: " << done_msg << "\n";
