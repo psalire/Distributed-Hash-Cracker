@@ -6,6 +6,7 @@ HashCrackServer::HashCrackServer(std::string checksum_hex_string, std::string ss
         throw std::runtime_error("invalid client count");
     }
     set_is_started(false);
+    set_is_cracked_hash(false);
     set_hash_to_crack(checksum_hex_string);
     set_hash_algo(a);
     set_total_clients(t);
@@ -22,6 +23,8 @@ void HashCrackServer::init_server(int port) {
 }
 
 void HashCrackServer::accept_clients() {
+    set_cracked_hash("");
+    set_is_cracked_hash(false);
     set_is_started(false); // Assume starts a new session
     /* Accept all clients */
     for (int i = 0; i < total_clients; i++) {
@@ -76,12 +79,18 @@ void HashCrackServer::start() {
             memset(&results, 0, sizeof(results));
             socket.recv_message(client_sockfds[i], &results, sizeof(results));
             if (results.success) {
-                char *cracked = new char[results.string_len];
-                socket.recv_message(client_sockfds[i], cracked, results.string_len);
+                /* Receive cracked hash string */
+                char *cracked = new char[results.string_len+1];
+                socket.recv_message(client_sockfds[i], cracked, results.string_len+1);
+                printf("[SERVER] Client #%d cracked the hash.\n", i);
                 #ifdef SERVER_VERBOSE
-                printf("[INFO] Client #%d cracked the hash.\n", i);
-                printf("[INFO] CRACKED HASH: %s\n", cracked);
+                printf("[INFO] Client #%d CRACKED HASH: %s\n", i, cracked);
                 #endif
+                
+                /* Save cracked hash */
+                set_cracked_hash(cracked);
+                set_is_cracked_hash(true);
+                
                 delete[] cracked;
                 /* Signal all other clients that done */
                 const char *done = "DONE";
@@ -92,19 +101,15 @@ void HashCrackServer::start() {
                     }
                 }
             }
-            #ifdef SERVER_VERBOSE
             else {
-                printf("[INFO] Client #%d finished without cracking the hash.\n", i);
+                printf("[SERVER] Client #%d finished without cracking the hash.\n", i);
             }
-            #endif
         }));
     }
 }
 
 void HashCrackServer::wait_for_clients() {
-    if (!is_started) {
-        throw std::runtime_error("wait_for_clients() requires start()");
-    }
+    assert(is_started);
     assert(client_connections.size() == (unsigned int) total_clients);
     for (std::thread &t : client_connections) {
         t.join();
@@ -139,4 +144,18 @@ void HashCrackServer::set_use_fixed_string_length(bool b) {
 }
 void HashCrackServer::set_is_started(bool b)  {
     is_started = b;
+}
+void HashCrackServer::set_is_cracked_hash(bool b) {
+    is_cracked_hash = b;
+}
+void HashCrackServer::set_cracked_hash(std::string s) {
+    std::lock_guard<std::mutex> lock(lock_cracked_hash);
+    cracked_hash = s;
+}
+bool HashCrackServer::get_is_cracked_hash() {
+    return is_cracked_hash;
+}
+std::string HashCrackServer::get_cracked_hash() {
+    std::lock_guard<std::mutex> lock(lock_cracked_hash);
+    return cracked_hash;
 }

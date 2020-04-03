@@ -4,6 +4,7 @@
 
 #include <cryptopp/sha.h>
 #include <thread>
+#include <mutex>
 #include <iostream>
 #include "tcp.h"
 #include "encoder.h"
@@ -20,14 +21,17 @@ class HashCrackServer {
         /* Properties */
         std::string hash_to_crack,
                     search_space,
-                    hash_algo;
+                    hash_algo,
+                    cracked_hash;
         int total_clients,
             max_string_length;
         bool use_fixed_string_length,
              is_started;
+        std::atomic<bool> is_cracked_hash;
         TCPComm socket;
         std::vector<int> client_sockfds;
         std::vector<std::thread> client_connections;
+        std::mutex lock_cracked_hash;
         
         /* Methods */
         void init_server(int);
@@ -48,6 +52,10 @@ class HashCrackServer {
         void set_max_string_length(int);
         void set_use_fixed_string_length(bool);
         void set_is_started(bool);
+        void set_is_cracked_hash(bool);
+        void set_cracked_hash(std::string);
+        bool get_is_cracked_hash();
+        std::string get_cracked_hash();
 };
 
 #endif
