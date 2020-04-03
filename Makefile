@@ -1,6 +1,6 @@
 
 BIN = bin
-EXECS = main main_test
+EXECS = main_server main_client main_test
 CC = g++ -std=c++17 -Iinclude -Isrc -O3
 FLAGS = -Wall -Wextra -Wpedantic
 LINKS = -l:libcryptopp.a -pthread
@@ -10,10 +10,13 @@ HEADERS = $(wildcard include/*.h)
 
 .PHONY: all, clean, remake, test
 
-all: main
+all: main_server main_client
 
 ### Executables ###
-main: src/main.cc $(HEADERS) $(OBJECTS)
+main_server: src/main_server.cc $(HEADERS) $(OBJECTS)
+	$(CC) -o $@ $< $(OBJECTS) $(FLAGS) $(LINKS)
+    
+main_client: src/main_client.cc $(HEADERS) $(OBJECTS)
 	$(CC) -o $@ $< $(OBJECTS) $(FLAGS) $(LINKS)
 
 main_test: test/main_test.cc $(HEADERS) $(OBJECTS)
