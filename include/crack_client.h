@@ -68,7 +68,7 @@ template <typename HashAlgo> class HashCrack : public Encoder {
         HashCrack(std::string, std::string, std::string, int, int, bool);
 
         /* Methods */
-        void multithreaded_crack(HashCrackClient);
+        void multithreaded_crack(HashCrackClient &);
         bool check_hash_match(std::string);
         
         /* Setters and getters */

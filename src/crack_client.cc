@@ -177,7 +177,7 @@ template <typename HashAlgo> bool HashCrack<HashAlgo>::crack(std::string prefix,
     return false;
 }
 
-template <typename HashAlgo> void HashCrack<HashAlgo>::multithreaded_crack(HashCrackClient client_comm) {
+template <typename HashAlgo> void HashCrack<HashAlgo>::multithreaded_crack(HashCrackClient &client_comm) {
     assert(tot_threads > 0);
     set_is_cracked(false);
     set_is_done(false);
