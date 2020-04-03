@@ -369,12 +369,14 @@ int main(void) {
                 if (client_cracks_vec[i]->get_is_cracked()) {
                     is_cracked = true;
                     assert(client_cracks_vec[i]->get_cracked_hash() == correct_crack);
-                    if (++i == num_clients) {
-                        break;
-                    }
+                    assert(server_crack.get_is_cracked_hash());
+                    assert(client_cracks_vec[i]->get_cracked_hash() == server_crack.get_cracked_hash());
                     /* If empty string is hashed, all clients will crack,
                        else only one will crack, verify this */
                     if (client_cracks_vec[i]->get_cracked_hash() != "") {
+                        if (++i == num_clients) {
+                            break;
+                        }
                         for (; i < num_clients; i++) {
                             assert(client_cracks_vec[i]->get_is_cracked() == false);
                         }
