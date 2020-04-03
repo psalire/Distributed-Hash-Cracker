@@ -1,6 +1,20 @@
 
 # Distributed Hash Cracker
 
+* [About](#about)
+* [Dependencies](#dependencies)
+* [Files included](#files-included)
+* [How it works](#how-it-works)
+    * [Server](#server)
+    * [Client](#client)
+        * [Example flow](#example-flow)
+* [How to use](#how-to-use)
+    * [Steps](#steps)
+        * [Server help](#server-help)
+        * [Client help](#client-help)
+* [Notes, assumptions, limitations](#notes,-assumptions,-limitations)
+* [Example output](#example-output)
+
 ## About
 
 (WIP)
