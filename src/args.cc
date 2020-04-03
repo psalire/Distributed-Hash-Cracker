@@ -7,12 +7,13 @@ Args get_args(int argc, char **argv) {
     args.search_space = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`!@#$%^&*()-=~_+[]\\{}|;':\",./<>?";
     args.hash_to_crack = "";
     args.hash_algo = "";
+    args.output_file = "";
     args.total_clients = -1;
     args.max_string_len = 0;
     args.use_fixed_str_len = false;
     args.port = -1;
     int opt;
-    while ((opt = getopt(argc, argv, "i:s:l:n:a:x:c:p:fh")) != -1) {
+    while ((opt = getopt(argc, argv, "i:s:l:n:a:x:c:p:o:fh")) != -1) {
         switch(opt) {
             case 'i': {
                 args.hash_to_crack = optarg;
@@ -32,6 +33,10 @@ Args get_args(int argc, char **argv) {
             }
             case 'p': {
                 args.port = atoi(optarg);
+                break;
+            }
+            case 'o': {
+                args.output_file = optarg;
                 break;
             }
             case 'x': {
@@ -74,11 +79,12 @@ Args get_args(int argc, char **argv) {
 }
 
 void print_usage() {
-    std::cout << "Usage: main -i [Checksum string] -a [Hash algorithm] -n [Total clients] -p [Port Number]\n"
+    std::cout << "Usage: main -i [Checksum string] -a [Hash algorithm] -n [Total clients] -p [Port Number] -o [Output file]\n"
               << "-i:\n    Required: Hash/checksum to crack.\n"
               << "-a:\n    Required: Hash algorithm to use.\n"
               << "-n:\n    Required: Total clients to accept.\n"
               << "-p:\n    Required: Port number to create server on.\n"
+              << "-o:\n    Required: Output file to save cracked result.\n"
               << "-s:\n    Optional: Set search space.\n    Default:\n"
                  "    \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRST"
                  "UVWXYZ0123456789`!@#$%^&*()-=~_+[]\\{}|;':\",./<>?\"\n"
