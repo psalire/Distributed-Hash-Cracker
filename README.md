@@ -47,7 +47,7 @@ main_server : Server executable
 4. Send search space and other info to clients
 5. Wait for clients to complete
 6. Receive results from clients
-    - If client successfully cracked the hash, send message to all other clients to stop computing
+    * If client successfully cracked the hash, send message to all other clients to stop computing
 7. If received a crack, save crack to output file
 
 ## Client
@@ -56,7 +56,7 @@ main_server : Server executable
 2. Connect to server
 3. Receive parameters for cracking from server, including designated search space, hash algo, etc.
 4. Brute force crack the hash based on parameters from server
-    - Stop computing if cracked the hash, or received signal from server to stop
+    * Stop computing if cracked the hash, or received signal from server to stop
 5. After completion, send results to server
 
 ## How to use
