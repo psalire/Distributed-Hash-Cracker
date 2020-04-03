@@ -76,7 +76,7 @@ void HashCrackServer::start() {
             memset(&results, 0, sizeof(results));
             socket.recv_message(client_sockfds[i], &results, sizeof(results));
             if (results.success) {
-                char *cracked = new char[results.string_len];
+                char *cracked = new char[results.string_len+1];
                 socket.recv_message(client_sockfds[i], cracked, results.string_len);
                 #ifdef SERVER_VERBOSE
                 printf("[INFO] Client #%d cracked the hash.\n", i);
