@@ -74,7 +74,7 @@ Args get_args(int argc, char **argv) {
 }
 
 void print_usage() {
-    std::cout << "Usage: main -i [Checksum string] -a [Hash algorithm] -n [Total clients]\n"
+    std::cout << "Usage: main -i [Checksum string] -a [Hash algorithm] -n [Total clients] -p [Port Number]\n"
               << "-i:\n    Required: Hash/checksum to crack.\n"
               << "-a:\n    Required: Hash algorithm to use.\n"
               << "-n:\n    Required: Total clients to accept.\n"
