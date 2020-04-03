@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <unistd.h>
 
-typedef struct Args {
+typedef struct ArgsServer {
     std::string hash_to_crack,
                 search_space,
                 hash_algo,
@@ -15,12 +15,18 @@ typedef struct Args {
     bool use_fixed_str_len;
     int total_clients,
         port;
-} Args;
+} ArgsServer;
+
+typedef struct ArgsClient {
+    int tot_threads,
+        port;
+    std::string server_ip_addr;
+} ArgsClient;
 
 class ArgParser {
     public:
-        static Args server_get_args(int argc, char **argv);
-        static Args client_get_args(int argc, char **argv);
+        static ArgsServer server_get_args(int argc, char **argv);
+        static ArgsClient client_get_args(int argc, char **argv);
         static void server_print_usage();
         static void client_print_usage();
 };

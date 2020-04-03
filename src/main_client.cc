@@ -7,28 +7,24 @@
 
 int main(int argc, char **argv) {
     
-    Args args = ArgParser::client_get_args(argc, argv);
+    ArgsClient args = ArgParser::client_get_args(argc, argv);
     
     /* If missing required args, exit */
-    if (!args.hash_to_crack.size() || !args.hash_algo.size() || args.total_clients < 0) {
-        puts("Error: Missing required arguments.");
+    if (args.tot_threads <= 0 || args.port < 0) {
+        puts("Error: Missing/invalid required arguments.");
         ArgParser::client_print_usage();
         exit(EXIT_FAILURE);
     }
-    else if (args.total_clients == 0) {
-        puts("Error: Total clients must be >0.");
-        exit(EXIT_FAILURE);
-    }
-    #ifdef SERVER_VERBOSE
+    #ifdef CLIENT_VERBOSE
     std::cout
-        << "Hash to crack       : \"" << args.hash_to_crack << "\"\n"
-        << "Hash Algorithm      : "   << args.hash_algo << "\n"
-        << "Search space        : \"" << args.search_space << "\"\n"
-        << "Max string length   : "   << (!args.max_string_len ? "None (Test all string lengths)" : std::to_string(args.max_string_len)) << "\n"
-        << "Fixed string length : "   << (args.use_fixed_str_len ? "True" : "False") << "\n"
-        << "Total clients       : "   << args.total_clients << "\n\n";
+        << "\nServer IP Address: " << args.server_ip_addr << "\n"
+        << "Server port        : " << args.port << "\n"
+        << "Total Threads      : " << args.tot_threads << "\n\n";
     #endif
-    if (args.hash_algo == "SHA1") {
+    
+    HashCrackClient client_comm(args.tot_threads);
+    
+    /* if (args.hash_algo == "SHA1") {
         
     }
     else if (args.hash_algo == "SHA224") {
@@ -57,7 +53,7 @@ int main(int argc, char **argv) {
     }
     else if (args.hash_algo == "SHA3_224") {
         
-    }
+    } */
     
     return 0;
 }
