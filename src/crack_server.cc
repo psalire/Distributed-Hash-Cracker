@@ -76,7 +76,7 @@ void HashCrackServer::start() {
             memset(&results, 0, sizeof(results));
             socket.recv_message(client_sockfds[i], &results, sizeof(results));
             if (results.success) {
-                char *cracked = new char[results.string_len+1];
+                char *cracked = new char[results.string_len];
                 socket.recv_message(client_sockfds[i], cracked, results.string_len);
                 #ifdef SERVER_VERBOSE
                 printf("[INFO] Client #%d cracked the hash.\n", i);
@@ -87,6 +87,7 @@ void HashCrackServer::start() {
                 const char *done = "DONE";
                 for (int j = 0; j < total_clients; j++) {
                     if (j != i) {
+                        std::cout << "[INFO] Server send message " << j << "...\n";
                         socket.send_message(client_sockfds[j], (void *) done, 4);
                     }
                 }
@@ -96,7 +97,6 @@ void HashCrackServer::start() {
                 printf("[INFO] Client #%d finished without cracking the hash.\n", i);
             }
             #endif
-            close(client_sockfds[i]);
         }));
     }
 }
@@ -105,10 +105,15 @@ void HashCrackServer::wait_for_clients() {
     if (!is_started) {
         throw std::runtime_error("wait_for_clients() requires start()");
     }
+    assert(client_connections.size() == (unsigned int) total_clients);
     for (std::thread &t : client_connections) {
         t.join();
     }
     client_connections.clear();
+    for (int i = 0; i < total_clients; i++) {
+        close(client_sockfds[i]);
+    }
+    client_sockfds.clear();
 }
 
 /* Setters and getters */
@@ -124,7 +129,7 @@ void HashCrackServer::set_hash_algo(std::string s) {
 void HashCrackServer::set_total_clients(int n) {
     total_clients = n;
     client_sockfds.clear();
-    client_sockfds.resize(total_clients);
+    client_sockfds.resize(total_clients, -1);
 }
 void HashCrackServer::set_max_string_length(int n) {
     max_string_length = n;
