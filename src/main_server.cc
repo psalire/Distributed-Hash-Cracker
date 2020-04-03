@@ -64,5 +64,8 @@ int main(int argc, char **argv) {
             std::cout << crack_server.get_cracked_hash();
         }
     }
+    else {
+        std::cout << "[SERVER] Clients failed to crack hash\n";
+    }
     return 0;
 }
