@@ -4,6 +4,7 @@
 ## About
 
 (WIP)
+
 Divides and distributes a search space among clients to brute force crack hashes.
 
 ## Dependencies
