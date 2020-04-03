@@ -6,13 +6,13 @@
 
 int main(int argc, char **argv) {
 
-    Args args = get_args(argc, argv);
+    Args args = ArgParser::server_get_args(argc, argv);
 
     /* If missing required args, exit */
     if (!args.hash_to_crack.size() || !args.hash_algo.size() || args.total_clients < 0
         || args.port < 0 || args.output_file == "") {
         puts("Error: Missing required arguments.");
-        print_usage();
+        ArgParser::server_print_usage();
         exit(EXIT_FAILURE);
     }
     if (args.total_clients == 0) {
@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
 
     #ifdef SERVER_VERBOSE
     std::cout
-        << "Hash to crack       : \"" << args.hash_to_crack << "\"\n"
+        << "\nHash to crack       : \"" << args.hash_to_crack << "\"\n"
         << "Hash Algorithm      : "   << args.hash_algo << "\n"
         << "Search space        : \"" << args.search_space << "\"\n"
         << "Max string length   : "   << (!args.max_string_len ? "None (Test all string lengths)" : std::to_string(args.max_string_len)) << "\n"

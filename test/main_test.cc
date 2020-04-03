@@ -94,7 +94,7 @@ int main(void) {
         "-x", "<>",
         "-n", "0"
     };
-    Args args = get_args(13, (char **) argv);
+    Args args = ArgParser::server_get_args(13, (char **) argv);
     assert(args.search_space == "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@");
     assert(args.hash_algo == "SHA256");
     assert(args.hash_to_crack == "fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603");

@@ -17,7 +17,12 @@ typedef struct Args {
         port;
 } Args;
 
-Args get_args(int argc, char **argv);
-void print_usage();
+class ArgParser {
+    public:
+        static Args server_get_args(int argc, char **argv);
+        static Args client_get_args(int argc, char **argv);
+        static void server_print_usage();
+        static void client_print_usage();
+};
 
 #endif
