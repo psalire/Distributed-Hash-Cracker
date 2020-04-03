@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <chrono>
 #include "crack_server.h"
 #include "args.h"
 
@@ -21,7 +22,7 @@ int main(int argc, char **argv) {
 
     #ifdef SERVER_VERBOSE
     std::cout
-        << "\nHash to crack       : \"" << args.hash_to_crack << "\"\n"
+        << "\nHash to crack       : " << args.hash_to_crack << "\n"
         << "Hash Algorithm      : "     << args.hash_algo << "\n"
         << "Search space        : \""   << args.search_space << "\"\n"
         << "Max string length   : "     << (!args.max_string_len ? "None (Test all string lengths)" : std::to_string(args.max_string_len)) << "\n"
@@ -48,7 +49,10 @@ int main(int argc, char **argv) {
     crack_server.start();
     
     std::cout << "[SERVER] Clients are computing, waiting for results...\n";
+    std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
     crack_server.wait_for_clients();
+    std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
+    std::cout << "[SERVER] Time elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() / 1000.0 << "s\n";
     
     if (crack_server.get_is_cracked_hash()) {
         std::cout << "[SERVER] Client successfully cracked " << args.hash_to_crack << "\n";

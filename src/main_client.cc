@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cryptopp/sha.h>
 #include <cryptopp/files.h>
+#include <chrono>
 #include "crack_client.h"
 #include "args.h"
 
@@ -9,7 +10,10 @@ template <typename HashAlgo> static void do_crack(HashCrackClient &client_comm, 
     /* Instantiate HashCrack and do multithreaded_crack() */
     HashCrack<HashAlgo> hash_crack(settings, tot_threads);
     std::cout << "[CLIENT] Cracking hash...\n";
+    std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
     hash_crack.multithreaded_crack(client_comm);
+    std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
+    std::cout << "[CLIENT] Time elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() / 1000.0 << "s\n";
     /* Send results to server */
     client_comm.send_results_to_server(hash_crack.get_is_cracked(), hash_crack.get_cracked_hash());
 }
