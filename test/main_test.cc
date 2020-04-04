@@ -69,19 +69,6 @@ static bool hash_all_strings_up_to_len(std::string search_space, int length, std
     return false;
 }
 
-/* Static functions, returns instance of HashCrack depending on hash algo string */
-class HashCrackInit {
-    public:
-        /* Static functions, returns instance of HashCrack depending on which hash algo */
-        static HashCrack<CryptoPP::SHA256> *create_HashCrack_instance(Settings settings, int n) {
-            return new HashCrack<CryptoPP::SHA256>(settings, n);
-        }
-        static HashCrack<CryptoPP::SHA256> *create_HashCrack_instance(std::string checksum_hex_string, std::string s,
-                                                                      std::string p, int n, int m , bool f) {
-            return new HashCrack<CryptoPP::SHA256>(checksum_hex_string, s, p, n, m, f);
-        }
-};
-
 int main(void) {
     std::chrono::steady_clock::time_point start, end;
     /**************************** Test argparse ****************************/
