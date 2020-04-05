@@ -83,7 +83,7 @@ With search space of `abcdef` and `2` clients, trying to crack a hash whose inpu
     * E.g. Client #1 tries `a`, `aa`, `ab`, `...`, then tries `b`, `ba`, `...`, then `c`, `ca`, `...`
     * Client #2 tries `d`, `da`, `db`, `...`, then tries `e`, `ea`, `...`, then `f`, `fa`, `...`
 4. Client #1 will crack the hash for `abc`, and send its results to the server
-5. Client #1 sends message to Server indicating successful cracked, including  the cracked string
+5. Client #1 sends message to Server indicating successful crack, including  the cracked string
 6. Server sends message toall other clients (Client #2) that all is done- stop computing
 7. Server writes crack to file and exits
 8. Clients exit
