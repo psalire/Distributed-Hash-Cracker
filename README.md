@@ -46,9 +46,10 @@ src/
 test/
     main_test.cc    : Testing program main
 Makefile
+(Compiled:
 main_test   : Test executable
 main_client : Client executable
-main_server : Server executable
+main_server : Server executable)
 ```
 
 ## How it works
