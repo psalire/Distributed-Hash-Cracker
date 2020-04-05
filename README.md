@@ -17,8 +17,6 @@
 
 ## About
 
-(WIP)
-
 Divides and distributes a search space among clients to brute force crack hashes, multi-threaded on the CPU.
 
 ## Dependencies
@@ -96,9 +94,11 @@ With search space of `abcdef` and `2` clients, trying to crack a hash whose inpu
 1. Ensure dependencies are installed (above).
 2. Compile and run tests with ```make test```
 3. Compile client and server with ```make```
+4. Run server
+5. Run clients
 
 #### Server help:
-See crack_client.cc line 369 for supported hash algorithms.
+See crack_client.cc line 369 for supported hash algorithms. Also see Todo
 ```
 $ ./main_server -h
 Usage: main_server -i [Checksum String] -a [Hash Algorithm] -n [Total Clients] -p [Port Number] -o [Output File]
