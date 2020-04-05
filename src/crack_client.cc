@@ -5,8 +5,8 @@
 
 /* Constructor */
 HashCrackClient::HashCrackClient(int t) {
-    socket = TCPComm();
-    tot_threads = t;
+    socket_ = TCPComm();
+    tot_threads_ = t;
     is_connected = false;
 }
 
@@ -14,12 +14,12 @@ HashCrackClient::HashCrackClient(int t) {
 bool HashCrackClient::connect_to_server(const char *ip_addr, int port) {
     try {
         /* Connect to server ip:port */
-        socket.connect_socket(ip_addr, port);
+        socket_.connect_socket(ip_addr, port);
         /* Receive hash_to_crack, search_space, and prefixes */
         #ifdef CLIENT_VERBOSE
         std::cout << "[INFO] Receiving settings from server...\n";
         #endif
-        socket.recv_message((void *) &settings, sizeof(settings));
+        socket_.recv_message((void *) &settings_, sizeof(settings_));
     }
     catch (const std::exception &e) {
         perror(e.what());
@@ -34,29 +34,29 @@ void HashCrackClient::send_results_to_server(bool b, std::string cracked_hash) {
     memset(&results, 0, sizeof(results));
     results.success = b;
     results.string_len = cracked_hash.size();
-    socket.send_message(socket.get_sockfd(), (void *) &results, sizeof(results));
+    socket_.send_message(socket_.get_sockfd(), (void *) &results, sizeof(results));
     if (results.success) {
         std::cout << "[CLIENT] Successfully cracked the hash: " << cracked_hash << "\n";
         #ifdef CLIENT_VERBOSE
         std::cout << "[INFO] Client send results message...\n";
         #endif
-        socket.send_message(socket.get_sockfd(), (void *) cracked_hash.c_str(), cracked_hash.size()+1);
+        socket_.send_message(socket_.get_sockfd(), (void *) cracked_hash.c_str(), cracked_hash.size()+1);
     }
     else {
         std::cout << "[CLIENT] Finished assignment without cracking the hash.\n";
     }
 }
 bool HashCrackClient::recv_message(void *buf, int msg_len) {
-    return socket.recv_message(buf, msg_len);
+    return socket_.recv_message(buf, msg_len);
 }
 Settings HashCrackClient::get_settings() {
-    return settings;
+    return settings_;
 }
 bool HashCrackClient::get_is_connected() {
     return is_connected;
 }
 void HashCrackClient::close_socket() {
-    socket.close_socket();
+    socket_.close_socket();
     is_connected = false;
 }
 
@@ -74,7 +74,7 @@ template <typename T> HashCrack<T>::HashCrack(Settings settings, int n) {
     set_is_done(false);
     prefixes = settings.prefixes;
     #ifdef CLIENT_DEBUG
-    curr_length = 0;
+    curr_length_ = 0;
     #endif
 }
 template <typename T> HashCrack<T>::HashCrack(std::string checksum_hex_string, std::string s, std::string p, int n, int m, bool f) {
@@ -88,7 +88,7 @@ template <typename T> HashCrack<T>::HashCrack(std::string checksum_hex_string, s
     set_is_done(false);
     prefixes = p;
     #ifdef CLIENT_DEBUG
-    curr_length = 0;
+    curr_length_ = 0;
     #endif
 }
 
@@ -122,7 +122,7 @@ bool HashCrack<HashAlgo>::hash_all_strings(std::string search_space, int length,
                 #ifdef CLIENT_DEBUG
                 /* Print all found strings */
                 /* {
-                    std::lock_guard<std::mutex> lg(lock_stdout);
+                    std::lock_guard<std::mutex> lg(lock_stdout_);
                     std::cout << str << std::endl;
                 } */
                 #endif
@@ -176,7 +176,7 @@ template <typename HashAlgo> bool HashCrack<HashAlgo>::crack(std::string prefix,
 }
 
 template <typename HashAlgo> void HashCrack<HashAlgo>::multithreaded_crack(HashCrackClient &client_comm) {
-    assert(tot_threads > 0);
+    assert(tot_threads_ > 0);
     set_is_cracked(false);
     set_is_done(false);
     /* Try empty string */
@@ -201,7 +201,7 @@ template <typename HashAlgo> void HashCrack<HashAlgo>::multithreaded_crack(HashC
             }
             else {
                 #if defined CLIENT_VERBOSE || defined CLIENT_DEBUG
-                std::lock_guard<std::mutex> lg(lock_stdout);
+                std::lock_guard<std::mutex> lg(lock_stdout_);
                 #endif
                 std::cout << "[CLIENT] Recvd unexpected msg: " << done_msg << "\n";
             }
@@ -210,17 +210,17 @@ template <typename HashAlgo> void HashCrack<HashAlgo>::multithreaded_crack(HashC
     thread_signal.detach();
 
     /* Multithread hash cracking by dividing search space between starting chars */
-    int div = prefixes.size() / tot_threads;
-    if ((unsigned int ) tot_threads > prefixes.size() || !div) {
-        throw std::runtime_error("tot_threads cannot be greater than length of prefixes");
+    int div = prefixes.size() / tot_threads_;
+    if ((unsigned int ) tot_threads_ > prefixes.size() || !div) {
+        throw std::runtime_error("tot_threads_ cannot be greater than length of prefixes");
     }
-    /* Divide prefixes into tot_threads number of subdivided_searchspace */
+    /* Divide prefixes into tot_threads_ number of subdivided_searchspace */
     std::vector<std::string> divided_searchspace;
     for (unsigned int i = 0; i < prefixes.size(); i += div) {
         divided_searchspace.push_back(std::string(prefixes, i, div));
     }
     /* Redistribute remainder */
-    if (divided_searchspace.size() > (unsigned int) tot_threads) {
+    if (divided_searchspace.size() > (unsigned int) tot_threads_) {
         std::string rem = divided_searchspace.back();
         divided_searchspace.pop_back();
         for (unsigned int i = divided_searchspace.size() - rem.size(), j = 0; i < divided_searchspace.size(); i++, j++) {
@@ -236,14 +236,14 @@ template <typename HashAlgo> void HashCrack<HashAlgo>::multithreaded_crack(HashC
     } */
     #endif
     #ifdef CLIENT_VERBOSE
-    curr_length = 0;
+    curr_length_ = 0;
     #endif
     #ifdef CLIENT_DEBUG
     int thread_num = 0;
     #endif
-    /* If use_fixed_str_len is false */
-    if (!use_fixed_str_len) {
-        auto f_check_str_len = max_string_len ? [](int l, int s) {
+    /* If use_fixed_str_len_ is false */
+    if (!use_fixed_str_len_) {
+        auto f_check_str_len = max_string_len_ ? [](int l, int s) {
             return l <= s;
         } : []([[maybe_unused]] int l, [[maybe_unused]] int s) {
             return true;
@@ -254,18 +254,18 @@ template <typename HashAlgo> void HashCrack<HashAlgo>::multithreaded_crack(HashC
             , int t_num
             #endif
             ) {
-                /* Try string lengths until max_string_len
-                   if max_string_len==0, is an infinite loop , see check_str_len
+                /* Try string lengths until max_string_len_
+                   if max_string_len_==0, is an infinite loop , see check_str_len
                 */
-                for (int l = 1; check_str_len(l, max_string_len); l++) {
+                for (int l = 1; check_str_len(l, max_string_len_); l++) {
                     /* Verbose or debug logging */
                     #if defined CLIENT_DEBUG || defined CLIENT_VERBOSE
                     {
-                        std::lock_guard<std::mutex> lg(lock_stdout);
+                        std::lock_guard<std::mutex> lg(lock_stdout_);
                         #ifdef CLIENT_VERBOSE
-                        if (l > curr_length) {
-                            curr_length = l;
-                            std::cout << "[INFO] Cracking lengths: " << curr_length << "\n";
+                        if (l > curr_length_) {
+                            curr_length_ = l;
+                            std::cout << "[INFO] Cracking lengths: " << curr_length_ << "\n";
                         }
                         #endif
                         #ifdef CLIENT_DEBUG
@@ -287,7 +287,7 @@ template <typename HashAlgo> void HashCrack<HashAlgo>::multithreaded_crack(HashC
             ));
         }
     }
-    /* Else use_fixed_str_len is true */
+    /* Else use_fixed_str_len_ is true */
     else {
         for (std::string s : divided_searchspace) {
             threads.push_back(std::thread([&](std::string prepend_set
@@ -298,18 +298,18 @@ template <typename HashAlgo> void HashCrack<HashAlgo>::multithreaded_crack(HashC
                     /* Verbose or debug logging */
                     #if defined CLIENT_DEBUG || defined CLIENT_VERBOSE
                     {
-                        std::lock_guard<std::mutex> lg(lock_stdout);
+                        std::lock_guard<std::mutex> lg(lock_stdout_);
                         #ifdef CLIENT_VERBOSE
-                        std::cout << "[INFO] Cracking lengths: " << max_string_len << "\n";
+                        std::cout << "[INFO] Cracking lengths: " << max_string_len_ << "\n";
                         #endif
                         #ifdef CLIENT_DEBUG
-                        printf("[THREAD_%d] Cracking lengths: %d\n", t_num, max_string_len);
+                        printf("[THREAD_%d] Cracking lengths: %d\n", t_num, max_string_len_);
                         #endif
                     }
                     #endif
                     /* Use each char in divided search space as prefix */
                     for (unsigned int i = 0; i < prepend_set.size(); i++) {
-                        if (crack(prepend_set.substr(i, 1), max_string_len)) {
+                        if (crack(prepend_set.substr(i, 1), max_string_len_)) {
                             return; /* End once hash cracked */
                         }
                     }
@@ -338,31 +338,31 @@ template <typename HashAlgo> void HashCrack<HashAlgo>::set_search_space(std::str
     search_space = ss;
 }
 template <typename HashAlgo> void HashCrack<HashAlgo>::set_tot_threads(int n) {
-    tot_threads = n;
+    tot_threads_ = n;
 }
 template <typename HashAlgo> void HashCrack<HashAlgo>::set_max_string_len(int n) {
-    max_string_len = n;
+    max_string_len_ = n;
 }
 template <typename HashAlgo> void HashCrack<HashAlgo>::set_use_fixed_string_len(bool b) {
-    if (b && !max_string_len) {
-        throw std::runtime_error("max_string_len must be > 0 to use fixed string len");
+    if (b && !max_string_len_) {
+        throw std::runtime_error("max_string_len_ must be > 0 to use fixed string len");
     }
-    use_fixed_str_len = b;
+    use_fixed_str_len_ = b;
 }
 template <typename HashAlgo> void HashCrack<HashAlgo>::set_is_cracked(bool b) {
-    is_cracked.store(b, std::memory_order_relaxed);
+    is_cracked_.store(b, std::memory_order_relaxed);
 }
 template <typename HashAlgo> void HashCrack<HashAlgo>::set_is_done(bool b) {
-    is_done.store(b, std::memory_order_relaxed);
+    is_done_.store(b, std::memory_order_relaxed);
 }
 template <typename HashAlgo> std::string HashCrack<HashAlgo>::get_cracked_hash() {
     return cracked_hash;
 }
 template <typename HashAlgo> bool HashCrack<HashAlgo>::get_is_cracked() {
-    return is_cracked.load(std::memory_order_relaxed);
+    return is_cracked_.load(std::memory_order_relaxed);
 }
 template <typename HashAlgo> bool HashCrack<HashAlgo>::get_is_done() {
-    return is_done.load(std::memory_order_relaxed);
+    return is_done_.load(std::memory_order_relaxed);
 }
 
 /* Declare possible types for template class */

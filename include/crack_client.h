@@ -15,9 +15,9 @@
 /* Handle connecting to and receving from server */
 class HashCrackClient {
     private:
-        TCPComm socket;
-        Settings settings;
-        int tot_threads;
+        TCPComm socket_;
+        Settings settings_;
+        int tot_threads_;
         bool is_connected;
         
     public:
@@ -45,16 +45,16 @@ template <typename HashAlgo> class HashCrack : public Encoder {
                     search_space,
                     prefixes;
         byte *hash_to_crack_byte_arr;
-        int tot_threads,
-            max_string_len;
-        std::atomic<bool> is_cracked,
-                          is_done;
-        bool use_fixed_str_len;
+        int tot_threads_,
+            max_string_len_;
+        std::atomic<bool> is_cracked_,
+                          is_done_;
+        bool use_fixed_str_len_;
         #if defined CLIENT_DEBUG || defined CLIENT_VERBOSE
-        std::mutex lock_stdout;
+        std::mutex lock_stdout_;
         #endif
         #ifdef CLIENT_VERBOSE
-        int curr_length;
+        int curr_length_;
         #endif
         
         /* Methods */

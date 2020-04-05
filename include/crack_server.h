@@ -19,19 +19,19 @@
 class HashCrackServer {
     private:
         /* Properties */
-        std::string hash_to_crack,
-                    search_space,
-                    hash_algo,
-                    cracked_hash;
-        int total_clients,
-            max_string_length;
-        bool use_fixed_string_length,
-             is_started;
-        std::atomic<bool> is_cracked_hash;
-        TCPComm socket;
-        std::vector<int> client_sockfds;
+        std::string hash_to_crack_,
+                    search_space_,
+                    hash_algo_,
+                    cracked_hash_;
+        int total_clients_,
+            max_string_length_;
+        bool use_fixed_string_length_,
+             is_started_;
+        std::atomic<bool> is_cracked_hash_;
+        TCPComm socket_;
+        std::vector<int> client_sockfds_;
         std::vector<std::thread> client_connections;
-        std::mutex lock_cracked_hash;
+        std::mutex lock_cracked_hash_;
         
         /* Methods */
         void init_server(int);
