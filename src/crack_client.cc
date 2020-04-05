@@ -15,7 +15,7 @@ bool HashCrackClient::connect_to_server(const char *ip_addr, int port) {
     try {
         /* Connect to server ip:port */
         socket_.connect_socket(ip_addr, port);
-        /* Receive hash_to_crack, search_space, and prefixes */
+        /* Receive hash_to_crack, search_space_, and prefixes_ */
         #ifdef CLIENT_VERBOSE
         std::cout << "[INFO] Receiving settings from server...\n";
         #endif
@@ -72,7 +72,7 @@ template <typename T> HashCrack<T>::HashCrack(Settings settings, int n) {
     set_tot_threads(n);
     set_is_cracked(false);
     set_is_done(false);
-    prefixes = settings.prefixes;
+    prefixes_ = settings.prefixes;
     #ifdef CLIENT_DEBUG
     curr_length_ = 0;
     #endif
@@ -86,7 +86,7 @@ template <typename T> HashCrack<T>::HashCrack(std::string checksum_hex_string, s
     set_tot_threads(n);
     set_is_cracked(false);
     set_is_done(false);
-    prefixes = p;
+    prefixes_ = p;
     #ifdef CLIENT_DEBUG
     curr_length_ = 0;
     #endif
@@ -97,28 +97,28 @@ template <typename T> HashCrack<T>::HashCrack(std::string checksum_hex_string, s
 template <typename HashAlgo> bool HashCrack<HashAlgo>::check_hash_match(std::string input) {
     HashAlgo hash;
     hash.Update((const byte*) input.data(), input.size());
-    return hash.Verify(hash_to_crack_byte_arr);
+    return hash.Verify(hash_to_crack_byte_arr_);
 }
 
 template <typename HashAlgo>
-bool HashCrack<HashAlgo>::hash_all_strings(std::string search_space, int length, std::string prefix) {
+bool HashCrack<HashAlgo>::hash_all_strings(int length, std::string prefix) {
     /* Initialize str */
-    std::string str(length, search_space[0]);
+    std::string str(length, search_space_[0]);
     /* Prepend str */
     str.insert(0, prefix);
     /* Adjust start position and length according to prefix */
     int start = prefix.size();
     length += start;
     if (start < length) {
-        /* char_i: contains index in search_space for each char in str */
+        /* char_i: contains index in search_space_ for each char in str */
         std::vector<unsigned int> char_i(length, 0);
-        unsigned int search_space_size = search_space.size()-1;
+        unsigned int search_space_size = search_space_.size()-1;
         unsigned int i;
         int pos;
         do {
             pos = start;
             for (i = 0; i <= search_space_size; i++) {
-                str[pos] = search_space[i];
+                str[pos] = search_space_[i];
                 #ifdef CLIENT_DEBUG
                 /* Print all found strings */
                 /* {
@@ -129,17 +129,17 @@ bool HashCrack<HashAlgo>::hash_all_strings(std::string search_space, int length,
                 if (check_hash_match(str)) {
                     set_is_cracked(true);
                     set_is_done(true);
-                    cracked_hash = str;
+                    cracked_hash_ = str;
                     return true;
                 }
             }
             for (pos++; pos < length; pos++) {
                 if (char_i[pos] != search_space_size) {
-                    str[pos] = search_space[++char_i[pos]];
+                    str[pos] = search_space_[++char_i[pos]];
                     break;
                 }
                 else {
-                    str[pos] = search_space[(char_i[pos] = 0)];
+                    str[pos] = search_space_[(char_i[pos] = 0)];
                 }
             }
             if (get_is_done()) {
@@ -154,7 +154,7 @@ bool HashCrack<HashAlgo>::hash_all_strings(std::string search_space, int length,
         if (check_hash_match(str)) {
             set_is_cracked(true);
             set_is_done(true);
-            cracked_hash = str;
+            cracked_hash_ = str;
             return true;
         }
     }
@@ -162,14 +162,14 @@ bool HashCrack<HashAlgo>::hash_all_strings(std::string search_space, int length,
 }
 
 template <typename HashAlgo> bool HashCrack<HashAlgo>::crack(std::string prefix, int max_str_len) {
-    if (!search_space.size()) {
-        throw std::runtime_error("search_space must not be empty");
+    if (!search_space_.size()) {
+        throw std::runtime_error("search_space_ must not be empty");
     }
     if (get_is_done()) {
         return true;
     }
 
-    if (hash_all_strings(search_space, max_str_len-prefix.size(), prefix)) {
+    if (hash_all_strings(max_str_len-prefix.size(), prefix)) {
         return true;
     }
     return false;
@@ -182,9 +182,9 @@ template <typename HashAlgo> void HashCrack<HashAlgo>::multithreaded_crack(HashC
     /* Try empty string */
     if (check_hash_match("")) {
         set_is_cracked(true);
-        cracked_hash = "";
-        delete[] hash_to_crack_byte_arr;
-        hash_to_crack_byte_arr = NULL;
+        cracked_hash_ = "";
+        delete[] hash_to_crack_byte_arr_;
+        hash_to_crack_byte_arr_ = NULL;
         return;
     }
     
@@ -210,14 +210,14 @@ template <typename HashAlgo> void HashCrack<HashAlgo>::multithreaded_crack(HashC
     thread_signal.detach();
 
     /* Multithread hash cracking by dividing search space between starting chars */
-    int div = prefixes.size() / tot_threads_;
-    if ((unsigned int ) tot_threads_ > prefixes.size() || !div) {
-        throw std::runtime_error("tot_threads_ cannot be greater than length of prefixes");
+    int div = prefixes_.size() / tot_threads_;
+    if ((unsigned int ) tot_threads_ > prefixes_.size() || !div) {
+        throw std::runtime_error("tot_threads_ cannot be greater than length of prefixes_");
     }
-    /* Divide prefixes into tot_threads_ number of subdivided_searchspace */
+    /* Divide prefixes_ into tot_threads_ number of subdivided_searchspace */
     std::vector<std::string> divided_searchspace;
-    for (unsigned int i = 0; i < prefixes.size(); i += div) {
-        divided_searchspace.push_back(std::string(prefixes, i, div));
+    for (unsigned int i = 0; i < prefixes_.size(); i += div) {
+        divided_searchspace.push_back(std::string(prefixes_, i, div));
     }
     /* Redistribute remainder */
     if (divided_searchspace.size() > (unsigned int) tot_threads_) {
@@ -227,7 +227,7 @@ template <typename HashAlgo> void HashCrack<HashAlgo>::multithreaded_crack(HashC
             divided_searchspace[i] += rem[j];
         }
     }
-    /* Use subdivided_searchspace as prefixes for crack() */
+    /* Use subdivided_searchspace as prefixes_ for crack() */
     std::vector<std::thread> threads;
     #ifdef CLIENT_DEBUG
     /* Print divided search space */
@@ -323,19 +323,19 @@ template <typename HashAlgo> void HashCrack<HashAlgo>::multithreaded_crack(HashC
     for (std::thread &t : threads) {
         t.join();
     }
-    delete[] hash_to_crack_byte_arr;
-    hash_to_crack_byte_arr = NULL;
+    delete[] hash_to_crack_byte_arr_;
+    hash_to_crack_byte_arr_ = NULL;
 }
 
 /* Setters and getters */
 template <typename HashAlgo> void HashCrack<HashAlgo>::set_hash_to_crack(std::string checksum_hex_string) {
     /* Save checksum hex string as byte array */
     std::string hash_to_crack = decode_hex_to_bytes(checksum_hex_string);
-    hash_to_crack_byte_arr = new byte[hash_to_crack.size()];
-    memcpy(hash_to_crack_byte_arr, hash_to_crack.data(), hash_to_crack.size());
+    hash_to_crack_byte_arr_ = new byte[hash_to_crack.size()];
+    memcpy(hash_to_crack_byte_arr_, hash_to_crack.data(), hash_to_crack.size());
 }
 template <typename HashAlgo> void HashCrack<HashAlgo>::set_search_space(std::string ss) {
-    search_space = ss;
+    search_space_ = ss;
 }
 template <typename HashAlgo> void HashCrack<HashAlgo>::set_tot_threads(int n) {
     tot_threads_ = n;
@@ -356,7 +356,7 @@ template <typename HashAlgo> void HashCrack<HashAlgo>::set_is_done(bool b) {
     is_done_.store(b, std::memory_order_relaxed);
 }
 template <typename HashAlgo> std::string HashCrack<HashAlgo>::get_cracked_hash() {
-    return cracked_hash;
+    return cracked_hash_;
 }
 template <typename HashAlgo> bool HashCrack<HashAlgo>::get_is_cracked() {
     return is_cracked_.load(std::memory_order_relaxed);

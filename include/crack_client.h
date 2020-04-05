@@ -41,10 +41,10 @@ class HashCrackClient {
 template <typename HashAlgo> class HashCrack : public Encoder {
     private:
         /* Properties */
-        std::string cracked_hash,
-                    search_space,
-                    prefixes;
-        byte *hash_to_crack_byte_arr;
+        std::string cracked_hash_,
+                    search_space_,
+                    prefixes_;
+        byte *hash_to_crack_byte_arr_;
         int tot_threads_,
             max_string_len_;
         std::atomic<bool> is_cracked_,
@@ -59,7 +59,7 @@ template <typename HashAlgo> class HashCrack : public Encoder {
         
         /* Methods */
         bool crack(std::string="", int=0);
-        bool hash_all_strings(std::string, int, std::string);
+        bool hash_all_strings(int, std::string);
         // void crack(std::string="");
 
     public:
