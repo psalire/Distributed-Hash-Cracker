@@ -23,7 +23,7 @@ main_client: src/main_client.cc $(HEADERS) $(CLIENT_OBJECTS)
 	$(CC) -o $@ $< $(CLIENT_OBJECTS) $(FLAGS) $(LINKS)
 
 main_test: test/main_test.cc $(HEADERS) $(ALL_OBJECTS)
-	$(CC) -Itest -o $@ $< $(ALL_OBJECTS) $(FLAGS) $(LINKS)
+	$(CC) -g -Itest -o $@ $< $(ALL_OBJECTS) $(FLAGS) $(LINKS)
 
 ### Objects ###
 bin/args_server.o: src/args_server.cc
