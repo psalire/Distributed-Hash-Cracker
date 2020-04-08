@@ -14,6 +14,7 @@
         * [Client help](#client-help)
 * [Notes, assumptions, limitations](#notes-assumptions-limitations)
 * [Example output](#example-output)
+* [Todo](#todo)
 
 ## About
 
@@ -99,7 +100,7 @@ With search space of `abcdef` and `2` clients, trying to crack a hash whose inpu
 5. Run clients
 
 #### Server help:
-See crack_client.cc line 369 for supported hash algorithms. Also see Todo
+See crack_client.cc line 369 for supported hash algorithms. Also see [Todo](#todo) 
 ```
 $ ./main_server -h
 Usage: main_server -i [Checksum String] -a [Hash Algorithm] -n [Total Clients] -p [Port Number] -o [Output File]
