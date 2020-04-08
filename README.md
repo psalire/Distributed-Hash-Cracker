@@ -25,7 +25,7 @@ Divides and distributes a search space among clients to brute force crack hashes
 ```
 Linux system, C++17, CryptoPP/Crypto++ (l:libcryptopp.a)
 
-Compiler tested: gcc (Ubuntu 7.4.0-1ubuntu1~18.04.1) 7.4.0
+Compiler tested: g++ (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0
 ```
 
 ## Files included
