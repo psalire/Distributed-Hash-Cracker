@@ -12,7 +12,7 @@
     * [Steps](#steps)
         * [Server help](#server-help)
         * [Client help](#client-help)
-* [Notes, assumptions, limitations](#notes,-assumptions,-limitations)
+* [Notes, assumptions, limitations](#notes-assumptions-limitations)
 * [Example output](#example-output)
 
 ## About
