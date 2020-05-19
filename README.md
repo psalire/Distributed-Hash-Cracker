@@ -4,16 +4,16 @@
 * [About](#about)
 * [Dependencies](#dependencies)
 * [Files included](#files-included)
-* [How it works](#how-it-works)
-    * [Server](#server)
-    * [Client](#client)
-        * [Example flow](#example-flow)
+* [Example output](#example-output)
 * [How to use](#how-to-use)
     * [Steps](#steps)
         * [Server help](#server-help)
         * [Client help](#client-help)
 * [Notes, assumptions, limitations](#notes-assumptions-limitations)
-* [Example output](#example-output)
+* [How it works](#how-it-works)
+    * [Server](#server)
+    * [Client](#client)
+        * [Example flow](#example-flow)
 * [Todo](#todo)
 
 ## About
@@ -52,101 +52,6 @@ main_test   : Test executable
 main_client : Client executable
 main_server : Server executable)
 ```
-
-## How it works
-
-### Server
-
-1. Open TCP socket
-2. Block for and accept connections from n clients
-3. Divide search space for n clients
-4. Send distributed search space and other parameters to clients
-5. Wait for and receive results from clients
-    * If client successfully cracked the hash, send message to all other clients to stop computing
-6. If received a crack, save crack to output file
-
-### Client
-
-1. Open TCP socket
-2. Connect to server
-3. Receive parameters for cracking from server, including designated search space, hash algo, etc.
-4. Brute force crack the hash based on received parameters
-    * Stop computing if cracked the hash, or received signal from server to stop
-5. After completion, send results to server
-
-#### Example flow
-
-With search space of `abcdef` and `2` clients, trying to crack a hash whose input was `abc`:
-
-1. Server divides this search space into 2: `abc` and `def`
-2. Server sends `abc` to Client #1 and `def` to Client #2
-3. Client #1 attempts all strings that start with `a`, `b`, and `c`. Client #2 attempts all strings that start with `d`, `e`, and `f`.
-    * E.g. Client #1 tries `a`, `aa`, `ab`, `...`, then tries `b`, `ba`, `...`, then `c`, `ca`, `...`
-    * Client #2 tries `d`, `da`, `db`, `...`, then tries `e`, `ea`, `...`, then `f`, `fa`, `...`
-4. Client #1 will crack the hash for `abc`, and send its results to the server
-5. Client #1 sends message to Server indicating successful crack, including  the cracked string
-6. Server sends message to all other clients (Client #2) that all is done and should stop computing
-7. Server writes crack to file and exits
-8. Clients exit
-
-## How to use
-
-### Steps
-
-1. Ensure dependencies are installed (above).
-2. Compile and run tests with ```make test```
-3. Compile client and server with ```make```
-4. Run server
-5. Run clients
-
-#### Server help:
-See crack_client.cc line 369 for supported hash algorithms. Also see [Todo](#todo) 
-```
-$ ./main_server -h
-Usage: main_server -i [Checksum String] -a [Hash Algorithm] -n [Total Clients] -p [Port Number] -o [Output File]
--i:
-    Required: Hash/checksum to crack.
--a:
-    Required: Hash algorithm to use. See README for supported inputs. 
--n:
-    Required: Total clients to accept.
--p:
-    Required: Port number to create server on.
--o:
-    Required: Output file to save cracked result.
--s:
-    Optional: Set search space.
-    Default:
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`!@#$%^&*()-=~_+[]\{}|;':",./<>?"
--x:
-    Optional: Exclude/remove characters from search space.
--c:
-    Optional: Include/add characters to search space. Duplicates ignored. 
--l:
-    Optional: Set a max string length for cracking.
-    Default: 0, meaning no max; try all possible string lengths.
--f:
-    Optional: Fixed string length; Only crack strings of length max string length.
-```
-
-#### Client help:
-```
-$ ./main_client -h
-Usage: main_client -i [Server IP Address] -p [Server Port] -n [Total Threads] 
--i:
-    Required: IP address of server.
--p:
-    Required: Port number of server.
--n:
-    Required: Total threads to use.
-
-```
-
-## Notes, assumptions, limitations
-
-* Macros for verbosity are defined in ```settings.h```
-    * Verbose logs are printed with prefix ```[INFO]```
-* Assumes server-client connection is maintained; Does not handle disconnects and reconnects
 
 ## Example Output
 
@@ -219,6 +124,101 @@ Total Threads     : 2
 [CLIENT] Time elapsed: 32.467s
 [CLIENT] Finished assignment without cracking the hash.
 ```
+
+## How to use
+
+### Steps
+
+1. Ensure dependencies are installed (above).
+2. Compile and run tests with ```make test```
+3. Compile client and server with ```make```
+4. Run server
+5. Run clients
+
+#### Server help:
+See crack_client.cc line 369 for supported hash algorithms. Also see [Todo](#todo) 
+```
+$ ./main_server -h
+Usage: main_server -i [Checksum String] -a [Hash Algorithm] -n [Total Clients] -p [Port Number] -o [Output File]
+-i:
+    Required: Hash/checksum to crack.
+-a:
+    Required: Hash algorithm to use. See README for supported inputs. 
+-n:
+    Required: Total clients to accept.
+-p:
+    Required: Port number to create server on.
+-o:
+    Required: Output file to save cracked result.
+-s:
+    Optional: Set search space.
+    Default:
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`!@#$%^&*()-=~_+[]\{}|;':",./<>?"
+-x:
+    Optional: Exclude/remove characters from search space.
+-c:
+    Optional: Include/add characters to search space. Duplicates ignored. 
+-l:
+    Optional: Set a max string length for cracking.
+    Default: 0, meaning no max; try all possible string lengths.
+-f:
+    Optional: Fixed string length; Only crack strings of length max string length.
+```
+
+#### Client help:
+```
+$ ./main_client -h
+Usage: main_client -i [Server IP Address] -p [Server Port] -n [Total Threads] 
+-i:
+    Required: IP address of server.
+-p:
+    Required: Port number of server.
+-n:
+    Required: Total threads to use.
+
+```
+
+## Notes, assumptions, limitations
+
+* Macros for verbosity are defined in ```settings.h```
+    * Verbose logs are printed with prefix ```[INFO]```
+* Assumes server-client connection is maintained; Does not handle disconnects and reconnects
+
+## How it works
+
+### Server
+
+1. Open TCP socket
+2. Block for and accept connections from n clients
+3. Divide search space for n clients
+4. Send distributed search space and other parameters to clients
+5. Wait for and receive results from clients
+    * If client successfully cracked the hash, send message to all other clients to stop computing
+6. If received a crack, save crack to output file
+
+### Client
+
+1. Open TCP socket
+2. Connect to server
+3. Receive parameters for cracking from server, including designated search space, hash algo, etc.
+4. Brute force crack the hash based on received parameters
+    * Stop computing if cracked the hash, or received signal from server to stop
+5. After completion, send results to server
+
+#### Example flow
+
+With search space of `abcdef` and `2` clients, trying to crack a hash whose input was `abc`:
+
+1. Server divides this search space into 2: `abc` and `def`
+2. Server sends `abc` to Client #1 and `def` to Client #2
+3. Client #1 attempts all strings that start with `a`, `b`, and `c`. Client #2 attempts all strings that start with `d`, `e`, and `f`.
+    * E.g. Client #1 tries `a`, `aa`, `ab`, `...`, then tries `b`, `ba`, `...`, then `c`, `ca`, `...`
+    * Client #2 tries `d`, `da`, `db`, `...`, then tries `e`, `ea`, `...`, then `f`, `fa`, `...`
+4. Client #1 will crack the hash for `abc`, and send its results to the server
+5. Client #1 sends message to Server indicating successful crack, including  the cracked string
+6. Server sends message to all other clients (Client #2) that all is done and should stop computing
+7. Server writes crack to file and exits
+8. Clients exit
 
 ## Todo
 
