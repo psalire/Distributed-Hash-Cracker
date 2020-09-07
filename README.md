@@ -4,11 +4,11 @@
 * [About](#about)
 * [Dependencies](#dependencies)
 * [Files included](#files-included)
-* [Example output](#example-output)
 * [How to use](#how-to-use)
     * [Steps](#steps)
         * [Server help](#server-help)
         * [Client help](#client-help)
+* [Example output](#example-output)
 * [Notes, assumptions, limitations](#notes-assumptions-limitations)
 * [How it works](#how-it-works)
     * [Server](#server)
@@ -19,6 +19,8 @@
 ## About
 
 Divides and distributes a search space among clients to brute force crack hashes, multi-threaded on the CPU.
+
+NOTE: All CPU cores on your machines will be pushed to 100%. Please make sure that you have adequate CPU cooling when using!
 
 ## Dependencies
 
@@ -51,6 +53,59 @@ Makefile
 main_test   : Test executable
 main_client : Client executable
 main_server : Server executable)
+```
+
+## How to use
+
+### Steps
+
+1. Ensure dependencies are installed (above).
+2. Compile and run tests with ```make test```
+3. Compile client and server with ```make```
+4. Run server
+5. Run clients
+
+#### Server help:
+See crack_client.cc line 369 for supported hash algorithms. Also see [Todo](#todo)
+```
+$ ./main_server -h
+Usage: main_server -i [Checksum String] -a [Hash Algorithm] -n [Total Clients] -p [Port Number] -o [Output File]
+-i:
+    Required: Hash/checksum to crack.
+-a:
+    Required: Hash algorithm to use. See README for supported inputs.
+-n:
+    Required: Total clients to accept.
+-p:
+    Required: Port number to create server on.
+-o:
+    Required: Output file to save cracked result.
+-s:
+    Optional: Set search space.
+    Default:
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`!@#$%^&*()-=~_+[]\{}|;':",./<>?"
+-x:
+    Optional: Exclude/remove characters from search space.
+-c:
+    Optional: Include/add characters to search space. Duplicates ignored.
+-l:
+    Optional: Set a max string length for cracking.
+    Default: 0, meaning no max; try all possible string lengths.
+-f:
+    Optional: Fixed string length; Only crack strings of length max string length.
+```
+
+#### Client help:
+```
+$ ./main_client -h
+Usage: main_client -i [Server IP Address] -p [Server Port] -n [Total Threads]
+-i:
+    Required: IP address of server.
+-p:
+    Required: Port number of server.
+-n:
+    Required: Total threads to use.
+
 ```
 
 ## Example Output
@@ -123,59 +178,6 @@ Total Threads     : 2
 [INFO] Cracking lengths: 5
 [CLIENT] Time elapsed: 32.467s
 [CLIENT] Finished assignment without cracking the hash.
-```
-
-## How to use
-
-### Steps
-
-1. Ensure dependencies are installed (above).
-2. Compile and run tests with ```make test```
-3. Compile client and server with ```make```
-4. Run server
-5. Run clients
-
-#### Server help:
-See crack_client.cc line 369 for supported hash algorithms. Also see [Todo](#todo) 
-```
-$ ./main_server -h
-Usage: main_server -i [Checksum String] -a [Hash Algorithm] -n [Total Clients] -p [Port Number] -o [Output File]
--i:
-    Required: Hash/checksum to crack.
--a:
-    Required: Hash algorithm to use. See README for supported inputs. 
--n:
-    Required: Total clients to accept.
--p:
-    Required: Port number to create server on.
--o:
-    Required: Output file to save cracked result.
--s:
-    Optional: Set search space.
-    Default:
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`!@#$%^&*()-=~_+[]\{}|;':",./<>?"
--x:
-    Optional: Exclude/remove characters from search space.
--c:
-    Optional: Include/add characters to search space. Duplicates ignored. 
--l:
-    Optional: Set a max string length for cracking.
-    Default: 0, meaning no max; try all possible string lengths.
--f:
-    Optional: Fixed string length; Only crack strings of length max string length.
-```
-
-#### Client help:
-```
-$ ./main_client -h
-Usage: main_client -i [Server IP Address] -p [Server Port] -n [Total Threads] 
--i:
-    Required: IP address of server.
--p:
-    Required: Port number of server.
--n:
-    Required: Total threads to use.
-
 ```
 
 ## Notes, assumptions, limitations
