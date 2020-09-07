@@ -29,8 +29,16 @@ The clients then brute force crack the hash using its given search space, multi-
 ```
 Linux system, C++17, CryptoPP/Crypto++ (l:libcryptopp.a)
 
-Compiler tested: g++ (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0
+Compilers tested: "g++ (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0", "g++ (Ubuntu 9.3.0-10ubuntu2) 9.3.0"
 ```
+
+Install Crypto++:
+
+```
+apt-get install libcrypto++
+```
+
+or see https://www.cryptopp.com/wiki/Linux for more details.
 
 ## Files included
 
