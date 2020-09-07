@@ -20,7 +20,7 @@
 
 Divides and distributes a search space among clients to brute force crack hashes, multi-threaded on the CPU.
 
-NOTE: All CPU cores on your machines will be pushed to 100%. Please make sure that you have adequate CPU cooling when using!
+**NOTE**: All CPU cores on your machines will be pushed to 100%. Please make sure that you have adequate CPU cooling when using!
 
 ## Dependencies
 
