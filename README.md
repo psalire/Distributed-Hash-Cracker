@@ -18,7 +18,9 @@
 
 ## About
 
-Divides and distributes a search space among clients to brute force crack hashes, multi-threaded on the CPU.
+The server divides and distributes the provided search space equally among its clients on the network.
+
+The clients then brute force crack the hash using its given search space, multi-threaded on the CPU.
 
 **NOTE**: All CPU cores on your machines will be pushed to 100% utilization. Please make sure that you have adequate CPU cooling when using!
 
